@@ -1,4 +1,4 @@
-export default {
+const translations = {
   // Navigation
   dashboard: 'Dashboard',
   companies: 'Companies',
@@ -45,7 +45,6 @@ export default {
   completed: 'Completed',
   
   // Roles
-  admin: 'Admin',
   closer: 'Closer',
   
   // Dashboard
@@ -62,13 +61,12 @@ export default {
   
   // Companies
   company: 'Company',
-  companies: 'Companies',
   addCompany: 'Add Company',
   editCompany: 'Edit Company',
   companyDetails: 'Company Details',
   companyName: 'Company Name',
   manager: 'Manager',
-  sector: 'Business Sector',
+  sector: 'Sector',
   size: 'Size',
   website: 'Website',
   siren: 'SIREN',
@@ -81,11 +79,10 @@ export default {
   selectCompanyForCall: 'Select a company to call',
   clickCompanyToStartCall: 'Click on a company to start a call',
   manageProspectsAndClients: 'Manage your prospects and clients database',
-  activeCallMode: 'Active call mode',
+  activeCallMode: 'Active Call Mode',
   
   // Calls
   call: 'Call',
-  calls: 'Calls',
   addCall: 'Add Call',
   editCall: 'Edit Call',
   callDetails: 'Call Details',
@@ -107,7 +104,6 @@ export default {
   
   // Appointments
   appointment: 'Appointment',
-  appointments: 'Appointments',
   addAppointment: 'Add Appointment',
   editAppointment: 'Edit Appointment',
   appointmentDetails: 'Appointment Details',
@@ -115,7 +111,6 @@ export default {
   appointmentTime: 'Appointment Time',
   briefing: 'Briefing',
   newAppointment: 'New Appointment',
-  todayAppointments: 'Today\'s Appointments',
   upcomingAppointments: 'Upcoming Appointments',
   
   // Users
@@ -141,7 +136,6 @@ export default {
   topPerformers: 'Top Performers',
   xpRanking: 'XP Ranking',
   activityLog: 'Activity Log',
-  recentActivity: 'Recent Activity',
   
   // Stats
   statistics: 'Statistics',
@@ -160,12 +154,9 @@ export default {
   callResults: 'Call Results',
   sectorPerformance: 'Sector Performance',
   geographicAnalysis: 'Geographic Analysis',
-  userPerformance: 'User Performance',
   personalStatsForClosers: 'Personal Statistics for Closers',
-  level: 'Level',
   confirmedAppointments: 'Confirmed Appointments',
   personalRevenue: 'Personal Revenue',
-  badges: 'Badges',
   
   // Time periods
   last7Days: 'Last 7 days',
@@ -194,9 +185,9 @@ export default {
   rememberMe: 'Remember me',
   forgotPassword: 'Forgot password',
   loginSuccess: 'Login successful',
-  loginError: 'Email or password incorrect',
+  loginError: 'Incorrect email or password',
   connecting: 'Connecting...',
-  crmForClosers: 'CRM for closers in teleprospecting',
+  crmForClosers: 'CRM for teleprospecting closers',
   
   // Theme
   darkMode: 'Dark mode',
@@ -221,8 +212,6 @@ export default {
   dailyEvolution: 'DAILY EVOLUTION',
   sectorAnalysis: 'SECTOR ANALYSIS',
   callOutcomes: 'CALL OUTCOMES',
-  userPerformance: 'USER PERFORMANCE',
-  geographicAnalysis: 'GEOGRAPHIC ANALYSIS',
   personalInfo: 'PERSONAL INFORMATION',
   
   // Activity types
@@ -264,7 +253,6 @@ export default {
   // Success messages
   companyAdded: 'Company added successfully',
   companyUpdated: 'Company updated successfully',
-  companyDeleted: 'Company deleted successfully',
   userAdded: 'User added successfully',
   userUpdated: 'User updated successfully',
   userDeleted: 'User deleted successfully',
@@ -274,4 +262,6 @@ export default {
   appointmentAdded: 'Appointment added successfully',
   appointmentUpdated: 'Appointment updated successfully',
   appointmentDeleted: 'Appointment deleted successfully',
-}; 
+};
+
+export default translations; 

@@ -1,8 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown,
   Users, 
   Phone, 
   Calendar, 
@@ -13,20 +10,13 @@ import {
   Clock,
   MapPin,
   Building2,
-  Filter,
   Download,
-  RefreshCw,
   Target,
   Zap,
   Activity,
   PieChart as PieChartIcon,
-  LineChart,
-  BarChart,
-  Calendar as CalendarIcon,
   UserCheck,
-  UserX,
   CheckCircle,
-  XCircle,
   AlertCircle,
   ArrowUpRight,
   ArrowDownRight,
@@ -43,26 +33,21 @@ import {
   PieChart, 
   Pie, 
   Cell,
-  LineChart as RechartsLineChart,
-  Line,
-  AreaChart,
-  Area,
   ComposedChart,
   Legend
 } from 'recharts';
-import { format, subDays, subWeeks, subMonths, startOfDay, endOfDay, parseISO, isWithinInterval } from 'date-fns';
+import { format, subDays, subMonths, startOfDay, endOfDay, parseISO, isWithinInterval } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockStats, mockUsers, mockCompanies, mockCalls, mockAppointments } from '../data/mockData';
+import { mockUsers, mockCompanies, mockCalls, mockAppointments } from '../data/mockData';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const Stats = () => {
   const { user, isAdmin, companies, calls, appointments } = useStore();
   const [timeRange, setTimeRange] = useState('30d'); // 7d, 30d, 90d, 1y
-  const [selectedPeriod, setSelectedPeriod] = useState('month'); // week, month, quarter, year
 
   // Combine store data with mock data
   const allCompanies = [...companies, ...mockCompanies];
@@ -767,7 +752,7 @@ const Stats = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <h3 className="text-lg font-semibold text-dark-900 dark:text-cream-50 mb-4 flex items-center">
-            <LineChart className="w-5 h-5 mr-2" />
+            <Activity className="w-5 h-5 mr-2" />
             {isAdmin ? 'Évolution globale des appels et RDV' : 'Évolution de mes appels et RDV'}
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -784,7 +769,7 @@ const Stats = () => {
               />
               <Legend />
               <Bar dataKey="calls" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Line type="monotone" dataKey="appointments" stroke="#10b981" strokeWidth={2} />
+              <Bar dataKey="appointments" fill="#10b981" radius={[4, 4, 0, 0]} />
             </ComposedChart>
           </ResponsiveContainer>
         </Card>

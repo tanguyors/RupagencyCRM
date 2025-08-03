@@ -1,4 +1,4 @@
-export default {
+const translations = {
   // Navigation
   dashboard: 'Dasbor',
   companies: 'Perusahaan',
@@ -45,11 +45,10 @@ export default {
   completed: 'Selesai',
   
   // Roles
-  admin: 'Admin',
   closer: 'Closer',
   
   // Dashboard
-  welcome: 'Selamat datang di CRM Rupagency!',
+  welcome: 'Selamat datang di CRM Rupagency Anda!',
   readyToOptimize: 'Siap untuk mengoptimalkan kinerja Anda?',
   recentActivity: 'Aktivitas Terbaru',
   quickActions: 'Aksi Cepat',
@@ -62,13 +61,12 @@ export default {
   
   // Companies
   company: 'Perusahaan',
-  companies: 'Perusahaan',
   addCompany: 'Tambah Perusahaan',
   editCompany: 'Edit Perusahaan',
   companyDetails: 'Detail Perusahaan',
   companyName: 'Nama Perusahaan',
   manager: 'Manajer',
-  sector: 'Sektor Bisnis',
+  sector: 'Sektor',
   size: 'Ukuran',
   website: 'Situs Web',
   siren: 'SIREN',
@@ -81,11 +79,10 @@ export default {
   selectCompanyForCall: 'Pilih perusahaan untuk dipanggil',
   clickCompanyToStartCall: 'Klik pada perusahaan untuk memulai panggilan',
   manageProspectsAndClients: 'Kelola database prospek dan klien Anda',
-  activeCallMode: 'Mode panggilan aktif',
+  activeCallMode: 'Mode Panggilan Aktif',
   
   // Calls
   call: 'Panggilan',
-  calls: 'Panggilan',
   addCall: 'Tambah Panggilan',
   editCall: 'Edit Panggilan',
   callDetails: 'Detail Panggilan',
@@ -100,14 +97,13 @@ export default {
   callResult: 'Hasil Panggilan',
   appointmentSet: 'Janji Temu Ditetapkan',
   interested: 'Tertarik',
-  toRecall: 'Untuk Dihubungi Kembali',
+  toRecall: 'Untuk Diingatkan',
   notInterested: 'Tidak Tertarik',
   callDuration: 'Durasi Panggilan',
   callNotes: 'Catatan Panggilan',
   
   // Appointments
   appointment: 'Janji Temu',
-  appointments: 'Janji Temu',
   addAppointment: 'Tambah Janji Temu',
   editAppointment: 'Edit Janji Temu',
   appointmentDetails: 'Detail Janji Temu',
@@ -115,7 +111,6 @@ export default {
   appointmentTime: 'Waktu Janji Temu',
   briefing: 'Briefing',
   newAppointment: 'Janji Temu Baru',
-  todayAppointments: 'Janji Temu Hari Ini',
   upcomingAppointments: 'Janji Temu Mendatang',
   
   // Users
@@ -141,7 +136,6 @@ export default {
   topPerformers: 'Performa Terbaik',
   xpRanking: 'Peringkat XP',
   activityLog: 'Log Aktivitas',
-  recentActivity: 'Aktivitas Terbaru',
   
   // Stats
   statistics: 'Statistik',
@@ -160,12 +154,9 @@ export default {
   callResults: 'Hasil Panggilan',
   sectorPerformance: 'Kinerja Sektor',
   geographicAnalysis: 'Analisis Geografis',
-  userPerformance: 'Kinerja Pengguna',
   personalStatsForClosers: 'Statistik Pribadi untuk Closer',
-  level: 'Level',
   confirmedAppointments: 'Janji Temu Dikonfirmasi',
   personalRevenue: 'Pendapatan Pribadi',
-  badges: 'Lencana',
   
   // Time periods
   last7Days: '7 hari terakhir',
@@ -193,10 +184,10 @@ export default {
   username: 'Nama Pengguna',
   rememberMe: 'Ingat saya',
   forgotPassword: 'Lupa kata sandi',
-  loginSuccess: 'Berhasil masuk',
+  loginSuccess: 'Login berhasil',
   loginError: 'Email atau kata sandi salah',
   connecting: 'Menghubungkan...',
-  crmForClosers: 'CRM untuk closer dalam teleprospeksi',
+  crmForClosers: 'CRM untuk closer teleprospeksi',
   
   // Theme
   darkMode: 'Mode gelap',
@@ -221,8 +212,6 @@ export default {
   dailyEvolution: 'EVOLUSI HARIAN',
   sectorAnalysis: 'ANALISIS SEKTOR',
   callOutcomes: 'HASIL PANGGILAN',
-  userPerformance: 'KINERJA PENGGUNA',
-  geographicAnalysis: 'ANALISIS GEOGRAFIS',
   personalInfo: 'INFORMASI PRIBADI',
   
   // Activity types
@@ -264,7 +253,6 @@ export default {
   // Success messages
   companyAdded: 'Perusahaan berhasil ditambahkan',
   companyUpdated: 'Perusahaan berhasil diperbarui',
-  companyDeleted: 'Perusahaan berhasil dihapus',
   userAdded: 'Pengguna berhasil ditambahkan',
   userUpdated: 'Pengguna berhasil diperbarui',
   userDeleted: 'Pengguna berhasil dihapus',
@@ -274,4 +262,6 @@ export default {
   appointmentAdded: 'Janji temu berhasil ditambahkan',
   appointmentUpdated: 'Janji temu berhasil diperbarui',
   appointmentDeleted: 'Janji temu berhasil dihapus',
-}; 
+};
+
+export default translations; 

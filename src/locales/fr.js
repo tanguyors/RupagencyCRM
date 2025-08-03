@@ -45,7 +45,6 @@ export default {
   completed: 'Terminé',
   
   // Roles
-  admin: 'Admin',
   closer: 'Closer',
   
   // Dashboard
@@ -62,7 +61,6 @@ export default {
   
   // Companies
   company: 'Entreprise',
-  companies: 'Entreprises',
   addCompany: 'Ajouter une entreprise',
   editCompany: 'Modifier l\'entreprise',
   companyDetails: 'Détails de l\'entreprise',
@@ -85,7 +83,6 @@ export default {
   
   // Calls
   call: 'Appel',
-  calls: 'Appels',
   addCall: 'Ajouter un appel',
   editCall: 'Modifier l\'appel',
   callDetails: 'Détails de l\'appel',
@@ -107,7 +104,6 @@ export default {
   
   // Appointments
   appointment: 'Rendez-vous',
-  appointments: 'Rendez-vous',
   addAppointment: 'Ajouter un RDV',
   editAppointment: 'Modifier le RDV',
   appointmentDetails: 'Détails du RDV',
@@ -115,7 +111,6 @@ export default {
   appointmentTime: 'Heure du RDV',
   briefing: 'Briefing',
   newAppointment: 'Nouveau RDV',
-  todayAppointments: 'RDV du jour',
   upcomingAppointments: 'RDV à venir',
   
   // Users
@@ -141,7 +136,6 @@ export default {
   topPerformers: 'Top Performers',
   xpRanking: 'Classement XP',
   activityLog: 'Journal d\'activité',
-  recentActivity: 'Activité récente',
   
   // Stats
   statistics: 'Statistiques',
@@ -160,12 +154,9 @@ export default {
   callResults: 'Résultats des appels',
   sectorPerformance: 'Performance par secteur',
   geographicAnalysis: 'Analyse géographique',
-  userPerformance: 'Performance des utilisateurs',
   personalStatsForClosers: 'Statistiques personnelles pour les closers',
-  level: 'Niveau',
   confirmedAppointments: 'RDV confirmés',
   personalRevenue: 'CA personnel',
-  badges: 'Badges',
   
   // Time periods
   last7Days: '7 derniers jours',
@@ -221,8 +212,6 @@ export default {
   dailyEvolution: 'ÉVOLUTION QUOTIDIENNE',
   sectorAnalysis: 'ANALYSE PAR SECTEUR',
   callOutcomes: 'RÉSULTATS DES APPELS',
-  userPerformance: 'PERFORMANCE DES UTILISATEURS',
-  geographicAnalysis: 'ANALYSE GÉOGRAPHIQUE',
   personalInfo: 'INFORMATIONS PERSONNELLES',
   
   // Activity types
@@ -264,7 +253,6 @@ export default {
   // Success messages
   companyAdded: 'Entreprise ajoutée avec succès',
   companyUpdated: 'Entreprise mise à jour avec succès',
-  companyDeleted: 'Entreprise supprimée avec succès',
   userAdded: 'Utilisateur ajouté avec succès',
   userUpdated: 'Utilisateur mis à jour avec succès',
   userDeleted: 'Utilisateur supprimé avec succès',
