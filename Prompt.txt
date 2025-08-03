@@ -1,0 +1,152 @@
+Génère un projet complet (frontend + backend mock ou composants interactifs) d’un CRM SaaS moderne et responsive destiné à des closers (cailleurs) en téléprospection. L’objectif est de créer un outil de gestion simple, rapide, et 100% orienté business, avec une interface fluide et professionnelle.
+
+🧱 Structure fonctionnelle à générer
+Page de Connexion
+
+Champs : email, mot de passe
+
+Bouton “Connexion”
+
+Design sobre, moderne, responsive
+
+Dashboard principal du closer
+
+Message de bienvenue
+
+Bloc “À la une” éditable (texte dynamique affiché par l’admin)
+
+Menu latéral avec icônes : Accueil / Appels / RDV / Entreprises / Stats
+
+Affichage rapide des RDV du jour / dernières entreprises ajoutées
+
+Ajout entreprise
+
+Formulaire clair avec les champs :
+
+Nom (obligatoire)
+
+Téléphone, Ville, Code postal, Pays
+
+SIREN, Gérant, Secteur, Email, Site web, Taille entreprise
+
+Notes libres
+
+Bouton bien visible : “Valider et enregistrer”
+
+Enregistrement dans base de données ou mock local
+
+Fiche Appel
+
+Affiche la fiche entreprise (infos détaillées)
+
+Formulaire interactif à remplir pendant l’appel :
+
+Type d’appel : Prospection / Contrôle qualité / SAV
+
+Issue : RDV fixé / Rappel / Refus / Pas de réponse
+
+Résumé libre (textarea)
+
+Bouton “Appel terminé” qui sauvegarde les infos
+
+Si “RDV fixé” → ouverture automatique du formulaire RDV
+
+Ajout de RDV
+
+Sélecteur date + heure
+
+Briefing libre (textarea)
+
+S’enregistre dans un agenda hebdo interactif
+
+Agenda hebdo
+
+Vue semaine
+
+Tous les RDV du closer
+
+Cliquable → fiche entreprise correspondante
+
+Page Entreprises
+
+Liste avec recherche temps réel
+
+Filtres : statut, secteur, ville, cailleur assigné
+
+Clic → fiche détaillée avec tous les appels / RDV passés
+
+Statistiques
+
+Classement par CA, RDV fixés
+
+Classement par closer et par agence
+
+Graphiques : barres ou camemberts
+
+🧠 Fonctionnalités avancées pour l'admin
+Vue administrateur complète :
+
+Dashboard global avec :
+
+Nombre d’appels, RDV, taux de conversion
+
+Historique détaillé de chaque closer
+
+Suivi en temps réel des activités (appels en cours, RDV en attente…)
+
+Gestion des profils :
+
+Ajouter / supprimer / modifier des closers
+
+Assigner des leads ou entreprises
+
+Classement gamifié :
+
+XP, badges, niveaux, leaderboard visuel
+
+Calcul dynamique basé sur RDV, appels réussis, CA généré
+
+Journal d’activité :
+
+Timeline de toutes les actions du CRM (CRUD, appels, RDV)
+
+🎨 Design & UX
+Design moderne, épuré, intuitif, très rapide à utiliser
+
+Responsive toutes tailles
+
+Light / Dark mode (switch UI)
+
+Couleurs :
+
+Light mode : blanc / gris clair / bleu doux / crème
+
+Dark mode : gris foncé / bleu nuit
+
+Branding : texte "Rupagency" (pas de logo pour l’instant)
+
+⚙️ Tech stack (optionnel à adapter dans Cursor si tu veux coder directement)
+Frontend : React + TailwindCSS (ou autre UI lib moderne)
+
+Backend mocké : JSON server ou mock API (ou Node.js + Express)
+
+State : Zustand ou Redux (ou simple Context API)
+
+Charts : Recharts / Chart.js
+
+Routing : React Router
+
+Auth : mock JWT token
+
+UI composants : shadcn/ui ou autre moderne
+
+🛠 Instructions
+Respecte l’ordre et les fonctionnalités ci-dessus.
+
+Concentre-toi sur l’expérience utilisateur pour les closers : rapidité, clarté, efficacité.
+
+Utilise des composants modulaires et bien structurés.
+
+Crée une maquette interactive ou une base de code prête à lancer en local.
+
+Si tu ne peux pas tout coder, génère au minimum l’arborescence complète des pages et composants avec un début de logique.
