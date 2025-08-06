@@ -31,8 +31,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../build')));
-
 // Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companiesRoutes);
@@ -40,6 +38,9 @@ app.use('/api/calls', callsRoutes);
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/stats', statsRoutes);
+
+// Serve static files from the React build folder
+app.use(express.static(path.join(__dirname, '../build')));
 
 // Serve React app for any other routes
 app.get('*', (req, res) => {
