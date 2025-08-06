@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../database');
+const { pool } = require('../database');
 const { authenticateToken } = require('./auth');
 
 const router = express.Router();
@@ -13,12 +13,14 @@ router.get('/', authenticateToken, (req, res) => {
     ORDER BY c.createdAt DESC
   `;
   
-  db.all(query, (err, companies) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des entreprises' });
-    }
-    res.json(companies);
-  });
+  pool.query(query)
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des entreprises:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des entreprises' });
+    });
 });
 
 // Récupérer une entreprise par ID
@@ -32,17 +34,17 @@ router.get('/:id', authenticateToken, (req, res) => {
     WHERE c.id = ?
   `;
   
-  db.get(query, [id], (err, company) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération de l\'entreprise' });
-    }
-    
-    if (!company) {
-      return res.status(404).json({ message: 'Entreprise non trouvée' });
-    }
-    
-    res.json(company);
-  });
+  pool.query(query, [id])
+    .then(result => {
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Entreprise non trouvée' });
+      }
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération de l\'entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération de l\'entreprise' });
+    });
 });
 
 // Créer une nouvelle entreprise

@@ -97,3 +97,62 @@ Votre CRM sera accessible sur :
 - **Railway :** Gratuit (500h/mois) → $5/mois pour usage illimité
 - **Netlify :** Gratuit pour les projets personnels
 - **Total :** Gratuit pour commencer ! 
+
+# Configuration Base de Données PostgreSQL sur Railway
+
+## Étape 1 : Créer une base de données PostgreSQL
+
+1. Allez sur [Railway.app](https://railway.app)
+2. Connectez-vous à votre compte
+3. Dans votre projet RupagencyCRM, cliquez sur "New Service"
+4. Sélectionnez "Database" → "PostgreSQL"
+5. Railway va automatiquement créer une base de données PostgreSQL
+
+## Étape 2 : Récupérer les variables d'environnement
+
+1. Cliquez sur votre service PostgreSQL
+2. Allez dans l'onglet "Variables"
+3. Copiez la variable `DATABASE_URL` qui ressemble à :
+   ```
+   postgresql://postgres:password@containers-us-west-XX.railway.app:XXXX/railway
+   ```
+
+## Étape 3 : Configurer les variables d'environnement
+
+Dans votre service d'application (RupagencyCRM), ajoutez ces variables :
+
+```env
+# Base de données
+DATABASE_URL=postgresql://postgres:password@containers-us-west-XX.railway.app:XXXX/railway
+NODE_ENV=production
+
+# JWT
+JWT_SECRET=votre-secret-jwt-super-securise
+
+# CORS
+CORS_ORIGIN=https://votre-app.railway.app
+
+# API
+REACT_APP_API_URL=https://votre-app.railway.app/api
+```
+
+## Étape 4 : Redéployer l'application
+
+1. Railway va automatiquement redéployer votre application
+2. La base de données sera initialisée avec les tables et données de test
+3. Vérifiez les logs pour confirmer la connexion
+
+## Étape 5 : Vérifier la connexion
+
+1. Allez dans l'onglet "Deploy Logs" de votre application
+2. Vous devriez voir : "✅ Base de données PostgreSQL initialisée avec succès"
+3. Testez votre application en ligne
+
+## Données de test incluses
+
+L'application inclut automatiquement :
+- 3 utilisateurs de test (admin, closers)
+- 2 entreprises d'exemple
+- Identifiants de connexion :
+  - Email: admin@rupagency.com
+  - Mot de passe: password123 

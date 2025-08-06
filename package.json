@@ -34,8 +34,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "node server/index.js",
-    "dev": "concurrently \"npm run server\" \"npm run start\""
+    "server": "node start.js",
+    "dev": "concurrently \"npm run server\" \"npm run start\"",
+    "setup-db": "node scripts/setup-database.js",
+    "migrate": "node scripts/migrate.js"
   },
   "eslintConfig": {
     "extends": [

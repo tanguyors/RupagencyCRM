@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { db } = require('../database');
+const { pool } = require('../database');
 
 const router = express.Router();
 
@@ -15,42 +15,44 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ message: 'Email et mot de passe requis' });
   }
 
-  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur serveur' });
-    }
+  pool.query('SELECT * FROM users WHERE email = $1', [email])
+    .then(result => {
+      if (result.rows.length === 0) {
+        return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+      }
 
-    if (!user) {
-      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
-    }
+      const user = result.rows[0];
+      const isValidPassword = bcrypt.compareSync(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+      }
 
-    const isValidPassword = bcrypt.compareSync(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
-    }
+      // Créer le token JWT
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          email: user.email, 
+          role: user.role 
+        },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
 
-    // Créer le token JWT
-    const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role 
-      },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    // Retourner les données utilisateur sans le mot de passe
-    const { password: _, ...userWithoutPassword } = user;
-    
-    res.json({
-      user: {
-        ...userWithoutPassword,
-        badges: user.badges ? JSON.parse(user.badges) : []
-      },
-      token
+      // Retourner les données utilisateur sans le mot de passe
+      const { password: _, ...userWithoutPassword } = user;
+      
+      res.json({
+        user: {
+          ...userWithoutPassword,
+          badges: user.badges ? JSON.parse(user.badges) : []
+        },
+        token
+      });
+    })
+    .catch(err => {
+      console.error('Erreur lors de la connexion:', err);
+      res.status(500).json({ message: 'Erreur serveur' });
     });
-  });
 });
 
 // Vérifier le token
@@ -64,19 +66,25 @@ router.get('/verify', (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    db.get('SELECT * FROM users WHERE id = ?', [decoded.id], (err, user) => {
-      if (err || !user) {
-        return res.status(401).json({ message: 'Utilisateur non trouvé' });
-      }
-
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({
-        user: {
-          ...userWithoutPassword,
-          badges: user.badges ? JSON.parse(user.badges) : []
+    pool.query('SELECT * FROM users WHERE id = $1', [decoded.id])
+      .then(result => {
+        if (result.rows.length === 0) {
+          return res.status(401).json({ message: 'Utilisateur non trouvé' });
         }
+
+        const user = result.rows[0];
+        const { password: _, ...userWithoutPassword } = user;
+        res.json({
+          user: {
+            ...userWithoutPassword,
+            badges: user.badges ? JSON.parse(user.badges) : []
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Erreur lors de la vérification du token:', err);
+        res.status(500).json({ message: 'Erreur serveur' });
       });
-    });
   } catch (error) {
     res.status(401).json({ message: 'Token invalide' });
   }

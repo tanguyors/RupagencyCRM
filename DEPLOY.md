@@ -1,143 +1,186 @@
-# 🚀 Déploiement rapide sur Railway
+# 🚀 Guide de Déploiement - RupagencyCRM
 
-## Étape 1: Préparer votre projet
+## 📋 Prérequis
 
-1. **Installer les dépendances PostgreSQL**
-```bash
-npm install pg dotenv
-```
+- Compte Railway.app
+- Projet GitHub connecté
+- Base de données PostgreSQL
 
-2. **Créer un repository GitHub**
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/votre-username/RupagencyCRM.git
-git push -u origin main
-```
+## 🔧 Configuration de la Base de Données
 
-## Étape 2: Déployer sur Railway
+### Étape 1 : Créer la Base de Données PostgreSQL
 
-1. **Aller sur [Railway.app](https://railway.app)**
-2. **Se connecter avec GitHub**
-3. **Créer un nouveau projet**
-4. **Choisir "Deploy from GitHub repo"**
-5. **Sélectionner votre repository RupagencyCRM**
+1. **Allez sur Railway.app**
+   - Connectez-vous à votre compte
+   - Ouvrez votre projet RupagencyCRM
 
-## Étape 3: Configurer la base de données
+2. **Ajouter un service PostgreSQL**
+   - Cliquez sur "New Service"
+   - Sélectionnez "Database" → "PostgreSQL"
+   - Railway va créer automatiquement une base de données
 
-1. **Dans votre projet Railway, cliquer sur "New"**
-2. **Sélectionner "Database" → "PostgreSQL"**
-3. **Railway créera automatiquement une base PostgreSQL**
+3. **Récupérer les informations de connexion**
+   - Cliquez sur votre service PostgreSQL
+   - Allez dans l'onglet "Variables"
+   - Copiez la variable `DATABASE_URL`
 
-## Étape 4: Configurer les variables d'environnement
+### Étape 2 : Configurer les Variables d'Environnement
 
-Dans les paramètres de votre projet Railway, ajouter :
+Dans votre service d'application (RupagencyCRM), ajoutez ces variables :
 
-```
+```env
+# Base de données
+DATABASE_URL=postgresql://postgres:password@containers-us-west-XX.railway.app:XXXX/railway
 NODE_ENV=production
-JWT_SECRET=votre-secret-jwt-super-securise
-CORS_ORIGIN=https://votre-frontend.vercel.app
+
+# JWT
+JWT_SECRET=votre-secret-jwt-super-securise-changez-cela
+
+# CORS
+CORS_ORIGIN=https://votre-app.railway.app
+
+# API
+REACT_APP_API_URL=https://votre-app.railway.app/api
 ```
 
-## Étape 5: Modifier le serveur pour PostgreSQL
+### Étape 3 : Initialiser la Base de Données
 
-Remplacer le contenu de `server/index.js` :
+1. **Redéployer l'application**
+   - Railway va automatiquement redéployer
+   - La base de données sera initialisée
 
-```javascript
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+2. **Vérifier les logs**
+   - Allez dans "Deploy Logs"
+   - Vous devriez voir : "✅ Base de données PostgreSQL initialisée avec succès"
 
-const { router: authRoutes } = require('./routes/auth');
-const companiesRoutes = require('./routes/companies');
-const callsRoutes = require('./routes/calls');
-const appointmentsRoutes = require('./routes/appointments');
-const usersRoutes = require('./routes/users');
-const statsRoutes = require('./routes/stats');
+## 🔐 Informations de Connexion
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+Une fois déployé, vous pouvez vous connecter avec :
 
-// Utiliser PostgreSQL en production, SQLite en développement
-const { initDatabase } = process.env.NODE_ENV === 'production' 
-  ? require('./database-postgres')
-  : require('./database');
+- **Email :** `admin@rupagency.com`
+- **Mot de passe :** `password123`
 
-// Initialiser la base de données
-initDatabase().then(() => {
-  console.log('Base de données initialisée avec succès');
-}).catch(err => {
-  console.error('Erreur lors de l\'initialisation de la base de données:', err);
-});
+## 🛠️ Développement Local
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
-}));
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../build')));
+### Configuration Locale
 
-// Routes API
-app.use('/api/auth', authRoutes);
-app.use('/api/companies', companiesRoutes);
-app.use('/api/calls', callsRoutes);
-app.use('/api/appointments', appointmentsRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/stats', statsRoutes);
-
-// Serve React app for any other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+1. **Créer un fichier `.env`**
+```env
+NODE_ENV=development
+DATABASE_URL=postgresql://localhost:5432/rupagency
+JWT_SECRET=dev-secret-key
+CORS_ORIGIN=http://localhost:3000
+REACT_APP_API_URL=http://localhost:5000/api
 ```
 
-## Étape 6: Déployer le frontend sur Vercel
+2. **Installer PostgreSQL localement**
+   - Ou utiliser Docker : `docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres`
 
-1. **Aller sur [Vercel.com](https://vercel.com)**
-2. **Se connecter avec GitHub**
-3. **Importer votre repository**
-4. **Configurer les variables d'environnement :**
-   ```
-   REACT_APP_API_URL=https://votre-api.railway.app/api
-   ```
+3. **Initialiser la base de données locale**
+```bash
+npm run setup-db
+```
 
-## Étape 7: Tester votre déploiement
+4. **Lancer l'application**
+```bash
+npm run dev
+```
 
-Votre CRM sera accessible sur :
-- **Frontend :** `https://votre-app.vercel.app`
-- **API :** `https://votre-api.railway.app/api`
+## 📊 Structure de la Base de Données
 
-## 🔧 Commandes utiles
+### Tables Principales
+
+- **users** : Utilisateurs du système
+- **companies** : Entreprises/prospects
+- **calls** : Appels programmés
+- **appointments** : Rendez-vous
+
+### Données de Test Incluses
+
+- 3 utilisateurs (admin + 2 closers)
+- 2 entreprises d'exemple
+- Configuration complète des rôles
+
+## 🔍 Vérification du Déploiement
+
+### Tests à Effectuer
+
+1. **Connexion utilisateur**
+   - Se connecter avec admin@rupagency.com
+   - Vérifier l'accès au dashboard
+
+2. **Fonctionnalités CRUD**
+   - Créer une entreprise
+   - Modifier un utilisateur
+   - Programmer un appel
+
+3. **API Endpoints**
+   - `/api/auth/login`
+   - `/api/companies`
+   - `/api/users`
+   - `/api/calls`
+   - `/api/appointments`
+
+## 🚨 Dépannage
+
+### Problèmes Courants
+
+1. **Erreur de connexion à la base de données**
+   - Vérifier `DATABASE_URL`
+   - S'assurer que `NODE_ENV=production`
+
+2. **Erreurs CORS**
+   - Vérifier `CORS_ORIGIN`
+   - S'assurer que l'URL correspond à votre domaine
+
+3. **Erreurs JWT**
+   - Vérifier `JWT_SECRET`
+   - Redémarrer l'application
+
+### Logs Utiles
 
 ```bash
-# Voir les logs Railway
+# Vérifier les logs Railway
 railway logs
 
-# Ouvrir le projet Railway
-railway open
-
-# Déployer manuellement
-railway up
-
-# Voir les variables d'environnement
-railway variables
+# Vérifier la base de données
+railway connect
 ```
 
-## 💰 Coûts
+## 🔄 Mise à Jour
 
-- **Railway :** Gratuit (500h/mois) → $5/mois pour usage illimité
-- **Vercel :** Gratuit pour les projets personnels
+### Pour Mettre à Jour l'Application
 
-## 🆘 Support
+1. **Pousser les changements sur GitHub**
+```bash
+git add .
+git commit -m "Update application"
+git push origin main
+```
 
-- [Documentation Railway](https://docs.railway.app)
-- [Documentation Vercel](https://vercel.com/docs)
-- [Forum Railway](https://community.railway.app) 
+2. **Railway redéploie automatiquement**
+   - Surveiller les logs de déploiement
+   - Vérifier que tout fonctionne
+
+### Pour Mettre à Jour la Base de Données
+
+1. **Créer une migration**
+```bash
+npm run migrate
+```
+
+2. **Ou utiliser le script de setup**
+```bash
+npm run setup-db
+```
+
+## 📞 Support
+
+En cas de problème :
+1. Vérifier les logs Railway
+2. Tester en local d'abord
+3. Vérifier la configuration des variables d'environnement
+
+---
+
+**🎉 Votre CRM est maintenant connecté à une base de données PostgreSQL en ligne !** 
