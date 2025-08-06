@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  User, 
   Phone, 
   Mail, 
   Calendar, 
@@ -9,13 +8,9 @@ import {
   TrendingUp, 
   ArrowLeft,
   Edit,
-  Trash2,
-  Star,
-  Trophy,
-  Zap,
-  Activity
+  Trash2
 } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, subDays, subMonths, isWithinInterval, parseISO, eachDayOfInterval } from 'date-fns';
+import { format, subDays, subMonths, isWithinInterval, parseISO, eachDayOfInterval } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
   BarChart, 

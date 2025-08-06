@@ -1,11 +1,11 @@
 const fr = {
   // Navigation
   dashboard: 'Tableau de bord',
-  companies: 'Entreprises',
-  calls: 'Appels',
-  appointments: 'Rendez-vous',
-  stats: 'Statistiques',
-  admin: 'Administration',
+  navCompanies: 'Entreprises',
+  navCalls: 'Appels',
+  navAppointments: 'Rendez-vous',
+  navStats: 'Statistiques',
+  navAdmin: 'Administration',
   logout: 'Déconnexion',
   
   // Common
@@ -36,7 +36,7 @@ const fr = {
   addCompany: 'Ajouter une entreprise',
   editCompany: 'Modifier l\'entreprise',
   companyName: 'Nom de l\'entreprise',
-  phone: 'Téléphone',
+  companyPhone: 'Téléphone',
   city: 'Ville',
   postalCode: 'Code postal',
   country: 'Pays',
@@ -46,7 +46,7 @@ const fr = {
   website: 'Site web',
   size: 'Taille',
   notes: 'Notes',
-  status: 'Statut',
+  companyStatus: 'Statut',
   prospect: 'Prospect',
   lead: 'Lead',
   client: 'Client',
@@ -59,15 +59,15 @@ const fr = {
   callType: 'Type d\'appel',
   scheduledDateTime: 'Date et heure programmées',
   callNotes: 'Notes d\'appel',
-  priority: 'Priorité',
-  normal: 'Normal',
-  high: 'Élevée',
-  urgent: 'Urgente',
+  callPriority: 'Priorité',
+  callNormal: 'Normal',
+  callHigh: 'Élevée',
+  callUrgent: 'Urgente',
   callStatus: 'Statut de l\'appel',
   scheduled: 'Programmé',
   inProgress: 'En cours',
-  completed: 'Terminé',
-  cancelled: 'Annulé',
+  callCompleted: 'Terminé',
+  callCancelled: 'Annulé',
   
   // Appointments
   appointment: 'Rendez-vous',
@@ -78,9 +78,9 @@ const fr = {
   appointmentTime: 'Heure du rendez-vous',
   briefing: 'Briefing',
   appointmentStatus: 'Statut du rendez-vous',
-  pending: 'En attente',
+  appointmentPending: 'En attente',
   confirmed: 'Confirmé',
-  cancelled: 'Annulé',
+  appointmentCancelled: 'Annulé',
   
   // Users
   user: 'Utilisateur',
@@ -88,12 +88,12 @@ const fr = {
   addUser: 'Ajouter un utilisateur',
   editUser: 'Modifier l\'utilisateur',
   userName: 'Nom d\'utilisateur',
-  role: 'Rôle',
+  userRole: 'Rôle',
   closer: 'Closer',
-  admin: 'Administrateur',
+  userAdmin: 'Administrateur',
   userStatus: 'Statut utilisateur',
-  active: 'Actif',
-  inactive: 'Inactif',
+  userActive: 'Actif',
+  userInactive: 'Inactif',
   
   // Stats
   statistics: 'Statistiques',
@@ -143,7 +143,7 @@ const fr = {
   // Call Execution
   callExecution: 'Exécution d\'appel',
   callScript: 'Script d\'appel',
-  callNotes: 'Notes d\'appel',
+  callNotesExecution: 'Notes d\'appel',
   callOutcome: 'Résultat de l\'appel',
   nextAction: 'Action suivante',
   followUp: 'Suivi',
@@ -153,7 +153,7 @@ const fr = {
   teamPerformance: 'Performance de l\'équipe',
   callsMade: 'Appels effectués',
   appointmentsSet: 'Rendez-vous fixés',
-  conversionRate: 'Taux de conversion',
+  performanceConversionRate: 'Taux de conversion',
   averageCallDuration: 'Durée moyenne d\'appel',
   
   // Settings
@@ -191,19 +191,19 @@ const fr = {
   endTime: 'Heure de fin',
   
   // Status
-  status: 'Statut',
-  active: 'Actif',
-  inactive: 'Inactif',
-  pending: 'En attente',
-  completed: 'Terminé',
-  cancelled: 'Annulé',
+  generalStatus: 'Statut',
+  generalActive: 'Actif',
+  generalInactive: 'Inactif',
+  generalPending: 'En attente',
+  generalCompleted: 'Terminé',
+  generalCancelled: 'Annulé',
   
   // Priority
-  priority: 'Priorité',
+  generalPriority: 'Priorité',
   low: 'Faible',
-  normal: 'Normal',
-  high: 'Élevée',
-  urgent: 'Urgente',
+  generalNormal: 'Normal',
+  generalHigh: 'Élevée',
+  generalUrgent: 'Urgente',
   
   // Types
   type: 'Type',
@@ -232,7 +232,7 @@ const fr = {
   belgium: 'Belgique',
   switzerland: 'Suisse',
   canada: 'Canada',
-  other: 'Autre'
+  otherCountry: 'Autre'
 };
 
 export default fr; 

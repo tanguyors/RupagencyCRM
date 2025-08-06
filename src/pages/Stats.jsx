@@ -1,26 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { 
-  TrendingUp, 
-  TrendingDown, 
   Users, 
   Phone, 
   Calendar, 
-  DollarSign, 
-  Target, 
-  Award,
-  BarChart3,
-  PieChart,
-  Activity,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Star,
-  Trophy,
-  Zap,
-  ArrowUp,
-  ArrowDown,
-  Minus
+  DollarSign
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -32,11 +15,7 @@ import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
-  Cell,
-  LineChart,
-  Line,
-  AreaChart,
-  Area
+  Cell
 } from 'recharts';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
@@ -252,7 +231,7 @@ const Stats = () => {
               </p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
         </Card>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
@@ -9,13 +9,9 @@ import {
   Calendar, 
   Clock, 
   Users, 
-  TrendingUp, 
   Edit, 
   Trash2, 
-  ArrowLeft,
-  Eye,
-  PhoneCall,
-  CalendarDays
+  ArrowLeft
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
