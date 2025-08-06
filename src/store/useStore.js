@@ -16,7 +16,7 @@ const useStore = create(
       // Language
       language: 'fr',
       
-      // Data
+      // Data (NE PAS PERSISTER - chargé depuis l'API)
       companies: [],
       calls: [],
       appointments: [],
@@ -52,6 +52,17 @@ const useStore = create(
           user: null,
           isAuthenticated: false,
           isAdmin: false,
+          // Vider les données lors de la déconnexion
+          companies: [],
+          calls: [],
+          appointments: [],
+          users: [],
+          stats: {
+            totalCalls: 0,
+            totalAppointments: 0,
+            conversionRate: 0,
+            totalRevenue: 0,
+          },
         });
       },
 
@@ -139,7 +150,7 @@ const useStore = create(
           throw error;
         }
       },
-      
+
       // Calls
       addCall: async (call) => {
         try {
@@ -339,17 +350,15 @@ const useStore = create(
     }),
     {
       name: 'rupagency-crm-storage',
+      // NE PERSISTER QUE les préférences utilisateur, PAS les données métier
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         isAdmin: state.isAdmin,
         isDarkMode: state.isDarkMode,
         language: state.language,
-        companies: state.companies,
-        calls: state.calls,
-        appointments: state.appointments,
-        users: state.users,
         featuredContent: state.featuredContent,
+        // NE PAS persister : companies, calls, appointments, users, stats
       }),
     }
   )

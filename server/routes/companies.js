@@ -4,6 +4,27 @@ const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
+// Fonction pour transformer les données PostgreSQL en format frontend
+const transformCompanyData = (row) => ({
+  id: row.id,
+  name: row.name,
+  phone: row.phone,
+  city: row.city,
+  postalCode: row.postal_code,
+  country: row.country,
+  siren: row.siren,
+  manager: row.manager,
+  sector: row.sector,
+  email: row.email,
+  website: row.website,
+  size: row.size,
+  notes: row.notes,
+  status: row.status,
+  assignedTo: row.assigned_to,
+  createdAt: row.created_at,
+  assignedToName: row.assignedtoname
+});
+
 // Récupérer toutes les entreprises
 router.get('/', authenticateToken, (req, res) => {
   const query = `
@@ -15,7 +36,8 @@ router.get('/', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      res.json(result.rows);
+      const transformedCompanies = result.rows.map(transformCompanyData);
+      res.json(transformedCompanies);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des entreprises:', err);
@@ -39,7 +61,8 @@ router.get('/:id', authenticateToken, (req, res) => {
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Entreprise non trouvée' });
       }
-      res.json(result.rows[0]);
+      const transformedCompany = transformCompanyData(result.rows[0]);
+      res.json(transformedCompany);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération de l\'entreprise:', err);
@@ -96,7 +119,8 @@ router.post('/', authenticateToken, (req, res) => {
       `, [company.id]);
     })
     .then(result => {
-      res.status(201).json(result.rows[0]);
+      const transformedCompany = transformCompanyData(result.rows[0]);
+      res.status(201).json(transformedCompany);
     })
     .catch(err => {
       console.error('Erreur lors de la création de l\'entreprise:', err);
@@ -156,7 +180,8 @@ router.put('/:id', authenticateToken, (req, res) => {
       `, [id]);
     })
     .then(result => {
-      res.json(result.rows[0]);
+      const transformedCompany = transformCompanyData(result.rows[0]);
+      res.json(transformedCompany);
     })
     .catch(err => {
       console.error('Erreur lors de la mise à jour de l\'entreprise:', err);
@@ -196,7 +221,8 @@ router.get('/search/:term', authenticateToken, (req, res) => {
 
   pool.query(query, [searchTerm])
     .then(result => {
-      res.json(result.rows);
+      const transformedCompanies = result.rows.map(transformCompanyData);
+      res.json(transformedCompanies);
     })
     .catch(err => {
       console.error('Erreur lors de la recherche:', err);

@@ -5,6 +5,33 @@ const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
+// Fonction pour transformer les données PostgreSQL en format frontend
+const transformUserData = (row) => {
+  let badges = [];
+  try {
+    if (row.badges && typeof row.badges === 'string') {
+      badges = JSON.parse(row.badges);
+    }
+  } catch (error) {
+    console.error('Erreur lors du parsing des badges:', error);
+    badges = [];
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    role: row.role,
+    status: row.status,
+    avatar: row.avatar,
+    xp: row.xp,
+    level: row.level,
+    badges: badges,
+    createdAt: row.created_at
+  };
+};
+
 // Récupérer tous les utilisateurs
 router.get('/', authenticateToken, (req, res) => {
   const query = `
@@ -15,25 +42,8 @@ router.get('/', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      // Parser les badges JSON de manière sécurisée
-      const usersWithParsedBadges = result.rows.map(user => {
-        let badges = [];
-        try {
-          if (user.badges && typeof user.badges === 'string') {
-            badges = JSON.parse(user.badges);
-          }
-        } catch (error) {
-          console.error('Erreur lors du parsing des badges:', error);
-          badges = [];
-        }
-        
-        return {
-          ...user,
-          badges: badges
-        };
-      });
-      
-      res.json(usersWithParsedBadges);
+      const transformedUsers = result.rows.map(transformUserData);
+      res.json(transformedUsers);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des utilisateurs:', err);
@@ -57,23 +67,8 @@ router.get('/:id', authenticateToken, (req, res) => {
         return res.status(404).json({ message: 'Utilisateur non trouvé' });
       }
       
-      const user = result.rows[0];
-      
-      // Parser les badges JSON de manière sécurisée
-      let badges = [];
-      try {
-        if (user.badges && typeof user.badges === 'string') {
-          badges = JSON.parse(user.badges);
-        }
-      } catch (error) {
-        console.error('Erreur lors du parsing des badges:', error);
-        badges = [];
-      }
-      
-      res.json({
-        ...user,
-        badges: badges
-      });
+      const transformedUser = transformUserData(result.rows[0]);
+      res.json(transformedUser);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération de l\'utilisateur:', err);
@@ -116,23 +111,8 @@ router.post('/', authenticateToken, (req, res) => {
 
   pool.query(query, values)
     .then(result => {
-      const user = result.rows[0];
-      
-      // Parser les badges JSON de manière sécurisée
-      let badges = [];
-      try {
-        if (user.badges && typeof user.badges === 'string') {
-          badges = JSON.parse(user.badges);
-        }
-      } catch (error) {
-        console.error('Erreur lors du parsing des badges:', error);
-        badges = [];
-      }
-      
-      res.status(201).json({
-        ...user,
-        badges: badges
-      });
+      const transformedUser = transformUserData(result.rows[0]);
+      res.status(201).json(transformedUser);
     })
     .catch(err => {
       console.error('Erreur lors de la création de l\'utilisateur:', err);
@@ -206,23 +186,8 @@ router.put('/:id', authenticateToken, (req, res) => {
       `, [id]);
     })
     .then(result => {
-      const user = result.rows[0];
-      
-      // Parser les badges JSON de manière sécurisée
-      let badges = [];
-      try {
-        if (user.badges && typeof user.badges === 'string') {
-          badges = JSON.parse(user.badges);
-        }
-      } catch (error) {
-        console.error('Erreur lors du parsing des badges:', error);
-        badges = [];
-      }
-      
-      res.json({
-        ...user,
-        badges: badges
-      });
+      const transformedUser = transformUserData(result.rows[0]);
+      res.json(transformedUser);
     })
     .catch(err => {
       console.error('Erreur lors de la mise à jour de l\'utilisateur:', err);
@@ -263,25 +228,8 @@ router.get('/role/:role', authenticateToken, (req, res) => {
   
   pool.query(query, [role])
     .then(result => {
-      // Parser les badges JSON de manière sécurisée
-      const usersWithParsedBadges = result.rows.map(user => {
-        let badges = [];
-        try {
-          if (user.badges && typeof user.badges === 'string') {
-            badges = JSON.parse(user.badges);
-          }
-        } catch (error) {
-          console.error('Erreur lors du parsing des badges:', error);
-          badges = [];
-        }
-        
-        return {
-          ...user,
-          badges: badges
-        };
-      });
-      
-      res.json(usersWithParsedBadges);
+      const transformedUsers = result.rows.map(transformUserData);
+      res.json(transformedUsers);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des utilisateurs par rôle:', err);
@@ -300,25 +248,8 @@ router.get('/status/active', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      // Parser les badges JSON de manière sécurisée
-      const usersWithParsedBadges = result.rows.map(user => {
-        let badges = [];
-        try {
-          if (user.badges && typeof user.badges === 'string') {
-            badges = JSON.parse(user.badges);
-          }
-        } catch (error) {
-          console.error('Erreur lors du parsing des badges:', error);
-          badges = [];
-        }
-        
-        return {
-          ...user,
-          badges: badges
-        };
-      });
-      
-      res.json(usersWithParsedBadges);
+      const transformedUsers = result.rows.map(transformUserData);
+      res.json(transformedUsers);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des utilisateurs actifs:', err);

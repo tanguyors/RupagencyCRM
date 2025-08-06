@@ -4,6 +4,19 @@ const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
+// Fonction pour transformer les données PostgreSQL en format frontend
+const transformAppointmentData = (row) => ({
+  id: row.id,
+  companyId: row.company_id,
+  date: row.date,
+  briefing: row.briefing,
+  status: row.status,
+  userId: row.user_id,
+  createdAt: row.created_at,
+  companyName: row.companyname,
+  userName: row.username
+});
+
 // Récupérer tous les rendez-vous
 router.get('/', authenticateToken, (req, res) => {
   const query = `
@@ -16,7 +29,8 @@ router.get('/', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      res.json(result.rows);
+      const transformedAppointments = result.rows.map(transformAppointmentData);
+      res.json(transformedAppointments);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des rendez-vous:', err);
@@ -41,7 +55,8 @@ router.get('/:id', authenticateToken, (req, res) => {
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Rendez-vous non trouvé' });
       }
-      res.json(result.rows[0]);
+      const transformedAppointment = transformAppointmentData(result.rows[0]);
+      res.json(transformedAppointment);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération du rendez-vous:', err);
@@ -87,7 +102,8 @@ router.post('/', authenticateToken, (req, res) => {
       `, [appointment.id]);
     })
     .then(result => {
-      res.status(201).json(result.rows[0]);
+      const transformedAppointment = transformAppointmentData(result.rows[0]);
+      res.status(201).json(transformedAppointment);
     })
     .catch(err => {
       console.error('Erreur lors de la création du rendez-vous:', err);
@@ -136,7 +152,8 @@ router.put('/:id', authenticateToken, (req, res) => {
       `, [id]);
     })
     .then(result => {
-      res.json(result.rows[0]);
+      const transformedAppointment = transformAppointmentData(result.rows[0]);
+      res.json(transformedAppointment);
     })
     .catch(err => {
       console.error('Erreur lors de la mise à jour du rendez-vous:', err);
@@ -176,7 +193,8 @@ router.get('/company/:companyId', authenticateToken, (req, res) => {
   
   pool.query(query, [companyId])
     .then(result => {
-      res.json(result.rows);
+      const transformedAppointments = result.rows.map(transformAppointmentData);
+      res.json(transformedAppointments);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des rendez-vous par entreprise:', err);
@@ -197,7 +215,8 @@ router.get('/today', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      res.json(result.rows);
+      const transformedAppointments = result.rows.map(transformAppointmentData);
+      res.json(transformedAppointments);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des rendez-vous du jour:', err);

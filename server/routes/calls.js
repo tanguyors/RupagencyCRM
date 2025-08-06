@@ -4,6 +4,21 @@ const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
+// Fonction pour transformer les données PostgreSQL en format frontend
+const transformCallData = (row) => ({
+  id: row.id,
+  companyId: row.company_id,
+  type: row.type,
+  scheduledDateTime: row.scheduled_date_time,
+  notes: row.notes,
+  priority: row.priority,
+  status: row.status,
+  userId: row.user_id,
+  createdAt: row.created_at,
+  companyName: row.companyname,
+  userName: row.username
+});
+
 // Récupérer tous les appels
 router.get('/', authenticateToken, (req, res) => {
   const query = `
@@ -16,7 +31,8 @@ router.get('/', authenticateToken, (req, res) => {
   
   pool.query(query)
     .then(result => {
-      res.json(result.rows);
+      const transformedCalls = result.rows.map(transformCallData);
+      res.json(transformedCalls);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des appels:', err);
@@ -41,7 +57,8 @@ router.get('/:id', authenticateToken, (req, res) => {
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Appel non trouvé' });
       }
-      res.json(result.rows[0]);
+      const transformedCall = transformCallData(result.rows[0]);
+      res.json(transformedCall);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération de l\'appel:', err);
@@ -89,7 +106,8 @@ router.post('/', authenticateToken, (req, res) => {
       `, [call.id]);
     })
     .then(result => {
-      res.status(201).json(result.rows[0]);
+      const transformedCall = transformCallData(result.rows[0]);
+      res.status(201).json(transformedCall);
     })
     .catch(err => {
       console.error('Erreur lors de la création de l\'appel:', err);
@@ -141,7 +159,8 @@ router.put('/:id', authenticateToken, (req, res) => {
       `, [id]);
     })
     .then(result => {
-      res.json(result.rows[0]);
+      const transformedCall = transformCallData(result.rows[0]);
+      res.json(transformedCall);
     })
     .catch(err => {
       console.error('Erreur lors de la mise à jour de l\'appel:', err);
@@ -181,7 +200,8 @@ router.get('/company/:companyId', authenticateToken, (req, res) => {
   
   pool.query(query, [companyId])
     .then(result => {
-      res.json(result.rows);
+      const transformedCalls = result.rows.map(transformCallData);
+      res.json(transformedCalls);
     })
     .catch(err => {
       console.error('Erreur lors de la récupération des appels par entreprise:', err);
