@@ -1,3 +1,34 @@
+# 🚀 Configuration Railway + Netlify
+
+## Étape 1: Déployer l'API sur Railway
+
+### 1. Aller sur [Railway.app](https://railway.app)
+### 2. Se connecter avec GitHub
+### 3. Créer un nouveau projet
+### 4. Choisir "Deploy from GitHub repo"
+### 5. Sélectionner votre repository RupagencyCRM
+
+## Étape 2: Ajouter PostgreSQL
+
+### 1. Dans votre projet Railway, cliquer sur "New"
+### 2. Sélectionner "Database" → "PostgreSQL"
+### 3. Railway créera automatiquement une base PostgreSQL
+
+## Étape 3: Configurer les variables d'environnement
+
+Dans les paramètres de votre projet Railway, ajouter :
+
+```
+NODE_ENV=production
+JWT_SECRET=votre-secret-jwt-super-securise
+CORS_ORIGIN=https://votre-app.netlify.app
+```
+
+## Étape 4: Modifier le serveur pour PostgreSQL
+
+Remplacer le contenu de `server/index.js` :
+
+```javascript
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -31,7 +62,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../build')));
 
 // Routes API
 app.use('/api/auth', authRoutes);
@@ -41,11 +71,29 @@ app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/stats', statsRoutes);
 
-// Serve React app for any other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
-});
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-}); 
+});
+```
+
+## Étape 5: Configurer Netlify
+
+### 1. Dans votre projet Netlify, aller dans "Site settings"
+### 2. Cliquer sur "Environment variables"
+### 3. Ajouter :
+
+```
+REACT_APP_API_URL=https://votre-api.railway.app/api
+```
+
+## Étape 6: Tester la connexion
+
+Votre CRM sera accessible sur :
+- **Frontend :** `https://votre-app.netlify.app`
+- **API :** `https://votre-api.railway.app/api`
+
+## 💰 Coûts
+
+- **Railway :** Gratuit (500h/mois) → $5/mois pour usage illimité
+- **Netlify :** Gratuit pour les projets personnels
+- **Total :** Gratuit pour commencer ! 

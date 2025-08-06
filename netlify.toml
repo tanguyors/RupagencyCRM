@@ -1,19 +1,20 @@
 [build]
-  # Commande de build
-  command = "npm run build"
-  
-  # Dossier de publication (où se trouve le build compilé)
   publish = "build"
+  command = "npm run build"
 
 [build.environment]
-  # Variables d'environnement pour le build
   NODE_VERSION = "18"
 
-# Redirections pour React Router (SPA)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[context.production.environment]
+  REACT_APP_API_URL = "https://votre-api.railway.app/api"
+
+[context.deploy-preview.environment]
+  REACT_APP_API_URL = "https://votre-api.railway.app/api"
 
 # Headers pour optimiser les performances
 [[headers]]
