@@ -32,7 +32,7 @@ web: npm start
 ### 3. Serveur Express (server/index.js)
 - Sert les fichiers statiques React depuis `/build`
 - Gère toutes les routes API (`/api/*`)
-- Redirige toutes les autres routes vers l'app React
+- Redirige toutes les autres routes vers l'app Reac  t
 
 ## 🚀 Fonctionnement
 
