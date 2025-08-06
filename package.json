@@ -35,7 +35,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "concurrently \"npm run server\" \"npm run start\"",
-    "server": "node start.js",
+    "server": "npm run build && node start.js",
     "setup-db": "node scripts/setup-database.js",
     "migrate": "node scripts/migrate.js",
     "postbuild": "echo 'Build completed successfully'"
