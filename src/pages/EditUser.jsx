@@ -6,7 +6,9 @@ import {
   Lock, 
   Shield,
   Save,
-  ArrowLeft
+  ArrowLeft,
+  Trash2,
+  Award
 } from 'lucide-react';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';

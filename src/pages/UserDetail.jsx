@@ -15,7 +15,7 @@ import {
   Zap,
   Activity
 } from 'lucide-react';
-import { format, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfWeek, endOfWeek, subDays, subMonths, isWithinInterval, parseISO, eachDayOfInterval } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { 
   BarChart, 
@@ -27,7 +27,9 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
