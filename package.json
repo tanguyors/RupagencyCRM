@@ -30,7 +30,7 @@
     "zustand": "^4.3.8"
   },
   "scripts": {
-    "start": "node start.js",
+    "start": "npm run build && node start.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
