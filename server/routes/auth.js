@@ -41,10 +41,21 @@ router.post('/login', (req, res) => {
       // Retourner les données utilisateur sans le mot de passe
       const { password: _, ...userWithoutPassword } = user;
       
+      // Parser les badges de manière sécurisée
+      let badges = [];
+      try {
+        if (user.badges && typeof user.badges === 'string') {
+          badges = JSON.parse(user.badges);
+        }
+      } catch (error) {
+        console.error('Erreur lors du parsing des badges:', error);
+        badges = [];
+      }
+      
       res.json({
         user: {
           ...userWithoutPassword,
-          badges: user.badges ? JSON.parse(user.badges) : []
+          badges: badges
         },
         token
       });
@@ -74,10 +85,22 @@ router.get('/verify', (req, res) => {
 
         const user = result.rows[0];
         const { password: _, ...userWithoutPassword } = user;
+        
+        // Parser les badges de manière sécurisée
+        let badges = [];
+        try {
+          if (user.badges && typeof user.badges === 'string') {
+            badges = JSON.parse(user.badges);
+          }
+        } catch (error) {
+          console.error('Erreur lors du parsing des badges:', error);
+          badges = [];
+        }
+        
         res.json({
           user: {
             ...userWithoutPassword,
-            badges: user.badges ? JSON.parse(user.badges) : []
+            badges: badges
           }
         });
       })
