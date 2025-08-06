@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://web-production-d52c8.up.railway.app/api'
+    : 'http://localhost:5000/api');
 
 class ApiService {
   constructor() {
@@ -111,7 +114,7 @@ class ApiService {
   }
 
   async searchCompanies(term) {
-    return await this.request(`/companies/search/${encodeURIComponent(term)}`);
+    return await this.request(`/companies/search/${term}`);
   }
 
   // Calls
@@ -218,7 +221,7 @@ class ApiService {
   }
 
   async getActiveUsers() {
-    return await this.request('/users/status/active');
+    return await this.request('/users/active');
   }
 
   // Stats
@@ -235,7 +238,7 @@ class ApiService {
   }
 
   async getSectorStats() {
-    return await this.request('/stats/sectors');
+    return await this.request('/stats/sector');
   }
 
   async getPerformanceStats() {
@@ -243,6 +246,4 @@ class ApiService {
   }
 }
 
-const apiService = new ApiService();
-
-export default apiService; 
+export default new ApiService(); 
