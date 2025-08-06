@@ -9,8 +9,8 @@ router.get('/', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, u.name as assignedToName 
     FROM companies c 
-    LEFT JOIN users u ON c.assignedTo = u.id 
-    ORDER BY c.createdAt DESC
+    LEFT JOIN users u ON c.assigned_to = u.id 
+    ORDER BY c.created_at DESC
   `;
   
   pool.query(query)
@@ -30,8 +30,8 @@ router.get('/:id', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, u.name as assignedToName 
     FROM companies c 
-    LEFT JOIN users u ON c.assignedTo = u.id 
-    WHERE c.id = ?
+    LEFT JOIN users u ON c.assigned_to = u.id 
+    WHERE c.id = $1
   `;
   
   pool.query(query, [id])
@@ -72,9 +72,10 @@ router.post('/', authenticateToken, (req, res) => {
 
   const query = `
     INSERT INTO companies (
-      name, phone, city, postalCode, country, siren, manager, 
-      sector, email, website, size, notes, status, assignedTo
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      name, phone, city, postal_code, country, siren, manager, 
+      sector, email, website, size, notes, status, assigned_to
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+    RETURNING *
   `;
 
   const values = [
@@ -82,24 +83,25 @@ router.post('/', authenticateToken, (req, res) => {
     sector, email, website, size, notes, status || 'Prospect', assignedTo
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la création de l\'entreprise' });
-    }
-
-    // Récupérer l'entreprise créée
-    db.get(`
-      SELECT c.*, u.name as assignedToName 
-      FROM companies c 
-      LEFT JOIN users u ON c.assignedTo = u.id 
-      WHERE c.id = ?
-    `, [this.lastID], (err, company) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération de l\'entreprise créée' });
-      }
-      res.status(201).json(company);
+  pool.query(query, values)
+    .then(result => {
+      const company = result.rows[0];
+      
+      // Récupérer l'entreprise avec le nom de l'utilisateur assigné
+      return pool.query(`
+        SELECT c.*, u.name as assignedToName 
+        FROM companies c 
+        LEFT JOIN users u ON c.assigned_to = u.id 
+        WHERE c.id = $1
+      `, [company.id]);
+    })
+    .then(result => {
+      res.status(201).json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la création de l\'entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la création de l\'entreprise' });
     });
-  });
 });
 
 // Mettre à jour une entreprise
@@ -128,10 +130,10 @@ router.put('/:id', authenticateToken, (req, res) => {
 
   const query = `
     UPDATE companies SET 
-      name = ?, phone = ?, city = ?, postalCode = ?, country = ?, 
-      siren = ?, manager = ?, sector = ?, email = ?, website = ?, 
-      size = ?, notes = ?, status = ?, assignedTo = ?
-    WHERE id = ?
+      name = $1, phone = $2, city = $3, postal_code = $4, country = $5, 
+      siren = $6, manager = $7, sector = $8, email = $9, website = $10, 
+      size = $11, notes = $12, status = $13, assigned_to = $14
+    WHERE id = $15
   `;
 
   const values = [
@@ -139,45 +141,44 @@ router.put('/:id', authenticateToken, (req, res) => {
     sector, email, website, size, notes, status, assignedTo, id
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'entreprise' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Entreprise non trouvée' });
-    }
-
-    // Récupérer l'entreprise mise à jour
-    db.get(`
-      SELECT c.*, u.name as assignedToName 
-      FROM companies c 
-      LEFT JOIN users u ON c.assignedTo = u.id 
-      WHERE c.id = ?
-    `, [id], (err, company) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération de l\'entreprise mise à jour' });
+  pool.query(query, values)
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Entreprise non trouvée' });
       }
-      res.json(company);
+
+      // Récupérer l'entreprise mise à jour
+      return pool.query(`
+        SELECT c.*, u.name as assignedToName 
+        FROM companies c 
+        LEFT JOIN users u ON c.assigned_to = u.id 
+        WHERE c.id = $1
+      `, [id]);
+    })
+    .then(result => {
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la mise à jour de l\'entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'entreprise' });
     });
-  });
 });
 
 // Supprimer une entreprise
 router.delete('/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
 
-  db.run('DELETE FROM companies WHERE id = ?', [id], function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la suppression de l\'entreprise' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Entreprise non trouvée' });
-    }
-
-    res.json({ message: 'Entreprise supprimée avec succès' });
-  });
+  pool.query('DELETE FROM companies WHERE id = $1', [id])
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Entreprise non trouvée' });
+      }
+      res.json({ message: 'Entreprise supprimée avec succès' });
+    })
+    .catch(err => {
+      console.error('Erreur lors de la suppression de l\'entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la suppression de l\'entreprise' });
+    });
 });
 
 // Rechercher des entreprises
@@ -188,17 +189,19 @@ router.get('/search/:term', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, u.name as assignedToName 
     FROM companies c 
-    LEFT JOIN users u ON c.assignedTo = u.id 
-    WHERE c.name LIKE ? OR c.city LIKE ? OR c.sector LIKE ? OR c.manager LIKE ?
-    ORDER BY c.createdAt DESC
+    LEFT JOIN users u ON c.assigned_to = u.id 
+    WHERE c.name ILIKE $1 OR c.city ILIKE $1 OR c.sector ILIKE $1 OR c.manager ILIKE $1
+    ORDER BY c.created_at DESC
   `;
 
-  db.all(query, [searchTerm, searchTerm, searchTerm, searchTerm], (err, companies) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la recherche' });
-    }
-    res.json(companies);
-  });
+  pool.query(query, [searchTerm])
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la recherche:', err);
+      res.status(500).json({ message: 'Erreur lors de la recherche' });
+    });
 });
 
 module.exports = router; 

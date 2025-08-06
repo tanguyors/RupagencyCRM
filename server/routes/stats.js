@@ -1,218 +1,161 @@
 const express = require('express');
-const { db } = require('../database');
+const { pool } = require('../database');
 const { authenticateToken } = require('./auth');
 
 const router = express.Router();
 
 // Récupérer les statistiques globales
-router.get('/', authenticateToken, (req, res) => {
-  // Compter le nombre total d'appels
-  db.get('SELECT COUNT(*) as totalCalls FROM calls', (err, callsResult) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
-    }
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    // Compter le nombre total d'appels
+    const callsResult = await pool.query('SELECT COUNT(*) as totalCalls FROM calls');
+    const totalCalls = parseInt(callsResult.rows[0].totalcalls);
 
     // Compter le nombre total de rendez-vous
-    db.get('SELECT COUNT(*) as totalAppointments FROM appointments', (err, appointmentsResult) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
-      }
+    const appointmentsResult = await pool.query('SELECT COUNT(*) as totalAppointments FROM appointments');
+    const totalAppointments = parseInt(appointmentsResult.rows[0].totalappointments);
 
-      // Compter le nombre total d'entreprises
-      db.get('SELECT COUNT(*) as totalCompanies FROM companies', (err, companiesResult) => {
-        if (err) {
-          return res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
-        }
+    // Compter le nombre total d'entreprises
+    const companiesResult = await pool.query('SELECT COUNT(*) as totalCompanies FROM companies');
+    const totalCompanies = parseInt(companiesResult.rows[0].totalcompanies);
 
-        // Calculer le taux de conversion
-        const totalCalls = callsResult.totalCalls;
-        const totalAppointments = appointmentsResult.totalAppointments;
-        const conversionRate = totalCalls > 0 ? ((totalAppointments / totalCalls) * 100).toFixed(1) : 0;
+    // Calculer le taux de conversion
+    const conversionRate = totalCalls > 0 ? ((totalAppointments / totalCalls) * 100).toFixed(1) : 0;
 
-        // Calculer le chiffre d'affaires total (simulation)
-        const totalRevenue = totalAppointments * 2000; // 2000€ par rendez-vous en moyenne
+    // Calculer le chiffre d'affaires total (simulation)
+    const totalRevenue = totalAppointments * 2000; // 2000€ par rendez-vous en moyenne
 
-        // Récupérer les meilleurs performeurs
-        db.all(`
-          SELECT u.name, COUNT(a.id) as appointments, COUNT(a.id) * 2000 as revenue
-          FROM users u
-          LEFT JOIN appointments a ON u.id = a.userId
-          WHERE u.role = 'closer'
-          GROUP BY u.id, u.name
-          ORDER BY appointments DESC
-          LIMIT 5
-        `, (err, topPerformers) => {
-          if (err) {
-            return res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
-          }
+    // Récupérer les meilleurs performeurs
+    const topPerformersResult = await pool.query(`
+      SELECT u.name, COUNT(a.id) as appointments, COUNT(a.id) * 2000 as revenue
+      FROM users u
+      LEFT JOIN appointments a ON u.id = a.user_id
+      WHERE u.role = 'closer'
+      GROUP BY u.id, u.name
+      ORDER BY appointments DESC
+      LIMIT 5
+    `);
 
-          res.json({
-            totalCalls,
-            totalAppointments,
-            totalCompanies: companiesResult.totalCompanies,
-            conversionRate: parseFloat(conversionRate),
-            totalRevenue,
-            topPerformers
-          });
-        });
-      });
+    res.json({
+      totalCalls,
+      totalAppointments,
+      totalCompanies,
+      conversionRate: parseFloat(conversionRate),
+      totalRevenue,
+      topPerformers: topPerformersResult.rows
     });
-  });
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques:', error);
+    res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
+  }
 });
 
 // Récupérer les statistiques par utilisateur
-router.get('/user/:userId', authenticateToken, (req, res) => {
+router.get('/user/:userId', authenticateToken, async (req, res) => {
   const { userId } = req.params;
 
-  // Statistiques des appels
-  db.get('SELECT COUNT(*) as totalCalls FROM calls WHERE userId = ?', [userId], (err, callsResult) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors du calcul des statistiques utilisateur' });
-    }
+  try {
+    // Statistiques des appels
+    const callsResult = await pool.query('SELECT COUNT(*) as totalCalls FROM calls WHERE user_id = $1', [userId]);
+    const totalCalls = parseInt(callsResult.rows[0].totalcalls);
 
     // Statistiques des rendez-vous
-    db.get('SELECT COUNT(*) as totalAppointments FROM appointments WHERE userId = ?', [userId], (err, appointmentsResult) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors du calcul des statistiques utilisateur' });
-      }
+    const appointmentsResult = await pool.query('SELECT COUNT(*) as totalAppointments FROM appointments WHERE user_id = $1', [userId]);
+    const totalAppointments = parseInt(appointmentsResult.rows[0].totalappointments);
 
-      // Statistiques des entreprises assignées
-      db.get('SELECT COUNT(*) as totalCompanies FROM companies WHERE assignedTo = ?', [userId], (err, companiesResult) => {
-        if (err) {
-          return res.status(500).json({ message: 'Erreur lors du calcul des statistiques utilisateur' });
-        }
+    // Statistiques des entreprises assignées
+    const companiesResult = await pool.query('SELECT COUNT(*) as totalCompanies FROM companies WHERE assigned_to = $1', [userId]);
+    const totalCompanies = parseInt(companiesResult.rows[0].totalcompanies);
 
-        const totalCalls = callsResult.totalCalls;
-        const totalAppointments = appointmentsResult.totalAppointments;
-        const conversionRate = totalCalls > 0 ? ((totalAppointments / totalCalls) * 100).toFixed(1) : 0;
-        const totalRevenue = totalAppointments * 2000;
+    const conversionRate = totalCalls > 0 ? ((totalAppointments / totalCalls) * 100).toFixed(1) : 0;
+    const totalRevenue = totalAppointments * 2000;
 
-        res.json({
-          totalCalls,
-          totalAppointments,
-          totalCompanies: companiesResult.totalCompanies,
-          conversionRate: parseFloat(conversionRate),
-          totalRevenue
-        });
-      });
+    res.json({
+      totalCalls,
+      totalAppointments,
+      totalCompanies,
+      conversionRate: parseFloat(conversionRate),
+      totalRevenue
     });
-  });
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques utilisateur:', error);
+    res.status(500).json({ message: 'Erreur lors du calcul des statistiques utilisateur' });
+  }
 });
 
 // Récupérer les statistiques mensuelles
-router.get('/monthly', authenticateToken, (req, res) => {
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
+router.get('/monthly', authenticateToken, async (req, res) => {
+  try {
+    const monthlyStats = await pool.query(`
+      SELECT 
+        DATE_TRUNC('month', created_at) as month,
+        COUNT(*) as totalCalls,
+        COUNT(CASE WHEN status = 'Terminé' THEN 1 END) as completedCalls
+      FROM calls 
+      WHERE created_at >= NOW() - INTERVAL '12 months'
+      GROUP BY DATE_TRUNC('month', created_at)
+      ORDER BY month DESC
+    `);
 
-  // Appels du mois
-  db.get(`
-    SELECT COUNT(*) as calls 
-    FROM calls 
-    WHERE strftime('%m', scheduledDateTime) = ? AND strftime('%Y', scheduledDateTime) = ?
-  `, [currentMonth.toString().padStart(2, '0'), currentYear.toString()], (err, callsResult) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors du calcul des statistiques mensuelles' });
-    }
-
-    // Rendez-vous du mois
-    db.get(`
-      SELECT COUNT(*) as appointments 
-      FROM appointments 
-      WHERE strftime('%m', date) = ? AND strftime('%Y', date) = ?
-    `, [currentMonth.toString().padStart(2, '0'), currentYear.toString()], (err, appointmentsResult) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors du calcul des statistiques mensuelles' });
-      }
-
-      // Entreprises créées ce mois
-      db.get(`
-        SELECT COUNT(*) as companies 
-        FROM companies 
-        WHERE strftime('%m', createdAt) = ? AND strftime('%Y', createdAt) = ?
-      `, [currentMonth.toString().padStart(2, '0'), currentYear.toString()], (err, companiesResult) => {
-        if (err) {
-          return res.status(500).json({ message: 'Erreur lors du calcul des statistiques mensuelles' });
-        }
-
-        const monthlyCalls = callsResult.calls;
-        const monthlyAppointments = appointmentsResult.appointments;
-        const monthlyConversionRate = monthlyCalls > 0 ? ((monthlyAppointments / monthlyCalls) * 100).toFixed(1) : 0;
-        const monthlyRevenue = monthlyAppointments * 2000;
-
-        res.json({
-          month: currentMonth,
-          year: currentYear,
-          calls: monthlyCalls,
-          appointments: monthlyAppointments,
-          companies: companiesResult.companies,
-          conversionRate: parseFloat(monthlyConversionRate),
-          revenue: monthlyRevenue
-        });
-      });
-    });
-  });
+    res.json(monthlyStats.rows);
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques mensuelles:', error);
+    res.status(500).json({ message: 'Erreur lors du calcul des statistiques mensuelles' });
+  }
 });
 
-// Récupérer les statistiques par secteur d'activité
-router.get('/sectors', authenticateToken, (req, res) => {
-  db.all(`
-    SELECT 
-      c.sector,
-      COUNT(c.id) as companies,
-      COUNT(DISTINCT cl.id) as calls,
-      COUNT(DISTINCT a.id) as appointments
-    FROM companies c
-    LEFT JOIN calls cl ON c.id = cl.companyId
-    LEFT JOIN appointments a ON c.id = a.companyId
-    WHERE c.sector IS NOT NULL AND c.sector != ''
-    GROUP BY c.sector
-    ORDER BY companies DESC
-  `, (err, sectors) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors du calcul des statistiques par secteur' });
-    }
+// Récupérer les statistiques par secteur
+router.get('/sector', authenticateToken, async (req, res) => {
+  try {
+    const sectorStats = await pool.query(`
+      SELECT 
+        sector,
+        COUNT(*) as totalCompanies,
+        COUNT(CASE WHEN status = 'Client' THEN 1 END) as clients,
+        COUNT(CASE WHEN status = 'Prospect' THEN 1 END) as prospects
+      FROM companies 
+      WHERE sector IS NOT NULL
+      GROUP BY sector
+      ORDER BY totalCompanies DESC
+    `);
 
-    const sectorsWithConversion = sectors.map(sector => ({
-      ...sector,
-      conversionRate: sector.calls > 0 ? ((sector.appointments / sector.calls) * 100).toFixed(1) : 0
-    }));
-
-    res.json(sectorsWithConversion);
-  });
+    res.json(sectorStats.rows);
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques par secteur:', error);
+    res.status(500).json({ message: 'Erreur lors du calcul des statistiques par secteur' });
+  }
 });
 
-// Récupérer les statistiques de performance des utilisateurs
-router.get('/performance', authenticateToken, (req, res) => {
-  db.all(`
-    SELECT 
-      u.id,
-      u.name,
-      u.role,
-      COUNT(DISTINCT c.id) as companies,
-      COUNT(DISTINCT cl.id) as calls,
-      COUNT(DISTINCT a.id) as appointments,
-      u.xp,
-      u.level
-    FROM users u
-    LEFT JOIN companies c ON u.id = c.assignedTo
-    LEFT JOIN calls cl ON u.id = cl.userId
-    LEFT JOIN appointments a ON u.id = a.userId
-    WHERE u.role = 'closer'
-    GROUP BY u.id, u.name, u.role, u.xp, u.level
-    ORDER BY appointments DESC
-  `, (err, performance) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors du calcul des performances' });
-    }
+// Récupérer les statistiques de performance
+router.get('/performance', authenticateToken, async (req, res) => {
+  try {
+    const performanceStats = await pool.query(`
+      SELECT 
+        u.name,
+        u.role,
+        COUNT(DISTINCT c.id) as totalCalls,
+        COUNT(DISTINCT a.id) as totalAppointments,
+        COUNT(DISTINCT co.id) as totalCompanies,
+        CASE 
+          WHEN COUNT(DISTINCT c.id) > 0 
+          THEN ROUND((COUNT(DISTINCT a.id)::float / COUNT(DISTINCT c.id)::float * 100), 1)
+          ELSE 0 
+        END as conversionRate,
+        COUNT(DISTINCT a.id) * 2000 as revenue
+      FROM users u
+      LEFT JOIN calls c ON u.id = c.user_id
+      LEFT JOIN appointments a ON u.id = a.user_id
+      LEFT JOIN companies co ON u.id = co.assigned_to
+      WHERE u.role = 'closer'
+      GROUP BY u.id, u.name, u.role
+      ORDER BY conversionRate DESC
+    `);
 
-    const performanceWithConversion = performance.map(user => ({
-      ...user,
-      conversionRate: user.calls > 0 ? ((user.appointments / user.calls) * 100).toFixed(1) : 0,
-      revenue: user.appointments * 2000
-    }));
-
-    res.json(performanceWithConversion);
-  });
+    res.json(performanceStats.rows);
+  } catch (error) {
+    console.error('Erreur lors du calcul des statistiques de performance:', error);
+    res.status(500).json({ message: 'Erreur lors du calcul des statistiques de performance' });
+  }
 });
 
 module.exports = router; 

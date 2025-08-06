@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../database');
+const { pool } = require('../database');
 const { authenticateToken } = require('./auth');
 
 const router = express.Router();
@@ -9,17 +9,19 @@ router.get('/', authenticateToken, (req, res) => {
   const query = `
     SELECT a.*, c.name as companyName, u.name as userName 
     FROM appointments a 
-    LEFT JOIN companies c ON a.companyId = c.id 
-    LEFT JOIN users u ON a.userId = u.id 
+    LEFT JOIN companies c ON a.company_id = c.id 
+    LEFT JOIN users u ON a.user_id = u.id 
     ORDER BY a.date DESC
   `;
   
-  db.all(query, (err, appointments) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous' });
-    }
-    res.json(appointments);
-  });
+  pool.query(query)
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des rendez-vous:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous' });
+    });
 });
 
 // Récupérer un rendez-vous par ID
@@ -29,22 +31,22 @@ router.get('/:id', authenticateToken, (req, res) => {
   const query = `
     SELECT a.*, c.name as companyName, u.name as userName 
     FROM appointments a 
-    LEFT JOIN companies c ON a.companyId = c.id 
-    LEFT JOIN users u ON a.userId = u.id 
-    WHERE a.id = ?
+    LEFT JOIN companies c ON a.company_id = c.id 
+    LEFT JOIN users u ON a.user_id = u.id 
+    WHERE a.id = $1
   `;
   
-  db.get(query, [id], (err, appointment) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération du rendez-vous' });
-    }
-    
-    if (!appointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-    }
-    
-    res.json(appointment);
-  });
+  pool.query(query, [id])
+    .then(result => {
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Rendez-vous non trouvé' });
+      }
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération du rendez-vous:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération du rendez-vous' });
+    });
 });
 
 // Créer un nouveau rendez-vous
@@ -62,33 +64,35 @@ router.post('/', authenticateToken, (req, res) => {
   }
 
   const query = `
-    INSERT INTO appointments (companyId, date, briefing, status, userId)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO appointments (company_id, date, briefing, status, user_id)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *
   `;
 
   const values = [
     companyId, date, briefing, status || 'En attente', userId
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la création du rendez-vous' });
-    }
-
-    // Récupérer le rendez-vous créé
-    db.get(`
-      SELECT a.*, c.name as companyName, u.name as userName 
-      FROM appointments a 
-      LEFT JOIN companies c ON a.companyId = c.id 
-      LEFT JOIN users u ON a.userId = u.id 
-      WHERE a.id = ?
-    `, [this.lastID], (err, appointment) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération du rendez-vous créé' });
-      }
-      res.status(201).json(appointment);
+  pool.query(query, values)
+    .then(result => {
+      const appointment = result.rows[0];
+      
+      // Récupérer le rendez-vous avec les noms des entités liées
+      return pool.query(`
+        SELECT a.*, c.name as companyName, u.name as userName 
+        FROM appointments a 
+        LEFT JOIN companies c ON a.company_id = c.id 
+        LEFT JOIN users u ON a.user_id = u.id 
+        WHERE a.id = $1
+      `, [appointment.id]);
+    })
+    .then(result => {
+      res.status(201).json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la création du rendez-vous:', err);
+      res.status(500).json({ message: 'Erreur lors de la création du rendez-vous' });
     });
-  });
 });
 
 // Mettre à jour un rendez-vous
@@ -108,54 +112,53 @@ router.put('/:id', authenticateToken, (req, res) => {
 
   const query = `
     UPDATE appointments SET 
-      companyId = ?, date = ?, briefing = ?, status = ?, userId = ?
-    WHERE id = ?
+      company_id = $1, date = $2, briefing = $3, status = $4, user_id = $5
+    WHERE id = $6
   `;
 
   const values = [
     companyId, date, briefing, status, userId, id
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la mise à jour du rendez-vous' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-    }
-
-    // Récupérer le rendez-vous mis à jour
-    db.get(`
-      SELECT a.*, c.name as companyName, u.name as userName 
-      FROM appointments a 
-      LEFT JOIN companies c ON a.companyId = c.id 
-      LEFT JOIN users u ON a.userId = u.id 
-      WHERE a.id = ?
-    `, [id], (err, appointment) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération du rendez-vous mis à jour' });
+  pool.query(query, values)
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Rendez-vous non trouvé' });
       }
-      res.json(appointment);
+
+      // Récupérer le rendez-vous mis à jour
+      return pool.query(`
+        SELECT a.*, c.name as companyName, u.name as userName 
+        FROM appointments a 
+        LEFT JOIN companies c ON a.company_id = c.id 
+        LEFT JOIN users u ON a.user_id = u.id 
+        WHERE a.id = $1
+      `, [id]);
+    })
+    .then(result => {
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la mise à jour du rendez-vous:', err);
+      res.status(500).json({ message: 'Erreur lors de la mise à jour du rendez-vous' });
     });
-  });
 });
 
 // Supprimer un rendez-vous
 router.delete('/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
 
-  db.run('DELETE FROM appointments WHERE id = ?', [id], function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la suppression du rendez-vous' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé' });
-    }
-
-    res.json({ message: 'Rendez-vous supprimé avec succès' });
-  });
+  pool.query('DELETE FROM appointments WHERE id = $1', [id])
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Rendez-vous non trouvé' });
+      }
+      res.json({ message: 'Rendez-vous supprimé avec succès' });
+    })
+    .catch(err => {
+      console.error('Erreur lors de la suppression du rendez-vous:', err);
+      res.status(500).json({ message: 'Erreur lors de la suppression du rendez-vous' });
+    });
 });
 
 // Récupérer les rendez-vous par entreprise
@@ -165,39 +168,41 @@ router.get('/company/:companyId', authenticateToken, (req, res) => {
   const query = `
     SELECT a.*, c.name as companyName, u.name as userName 
     FROM appointments a 
-    LEFT JOIN companies c ON a.companyId = c.id 
-    LEFT JOIN users u ON a.userId = u.id 
-    WHERE a.companyId = ?
+    LEFT JOIN companies c ON a.company_id = c.id 
+    LEFT JOIN users u ON a.user_id = u.id 
+    WHERE a.company_id = $1
     ORDER BY a.date DESC
   `;
   
-  db.all(query, [companyId], (err, appointments) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous' });
-    }
-    res.json(appointments);
-  });
+  pool.query(query, [companyId])
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des rendez-vous par entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous par entreprise' });
+    });
 });
 
 // Récupérer les rendez-vous du jour
 router.get('/today', authenticateToken, (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
-  
   const query = `
     SELECT a.*, c.name as companyName, u.name as userName 
     FROM appointments a 
-    LEFT JOIN companies c ON a.companyId = c.id 
-    LEFT JOIN users u ON a.userId = u.id 
-    WHERE DATE(a.date) = ?
+    LEFT JOIN companies c ON a.company_id = c.id 
+    LEFT JOIN users u ON a.user_id = u.id 
+    WHERE DATE(a.date) = CURRENT_DATE
     ORDER BY a.date ASC
   `;
   
-  db.all(query, [today], (err, appointments) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous du jour' });
-    }
-    res.json(appointments);
-  });
+  pool.query(query)
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des rendez-vous du jour:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des rendez-vous du jour' });
+    });
 });
 
 module.exports = router; 

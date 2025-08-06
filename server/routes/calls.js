@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../database');
+const { pool } = require('../database');
 const { authenticateToken } = require('./auth');
 
 const router = express.Router();
@@ -9,17 +9,19 @@ router.get('/', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, co.name as companyName, u.name as userName 
     FROM calls c 
-    LEFT JOIN companies co ON c.companyId = co.id 
-    LEFT JOIN users u ON c.userId = u.id 
-    ORDER BY c.scheduledDateTime DESC
+    LEFT JOIN companies co ON c.company_id = co.id 
+    LEFT JOIN users u ON c.user_id = u.id 
+    ORDER BY c.scheduled_date_time DESC
   `;
   
-  db.all(query, (err, calls) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des appels' });
-    }
-    res.json(calls);
-  });
+  pool.query(query)
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des appels:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des appels' });
+    });
 });
 
 // Récupérer un appel par ID
@@ -29,22 +31,22 @@ router.get('/:id', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, co.name as companyName, u.name as userName 
     FROM calls c 
-    LEFT JOIN companies co ON c.companyId = co.id 
-    LEFT JOIN users u ON c.userId = u.id 
-    WHERE c.id = ?
+    LEFT JOIN companies co ON c.company_id = co.id 
+    LEFT JOIN users u ON c.user_id = u.id 
+    WHERE c.id = $1
   `;
   
-  db.get(query, [id], (err, call) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération de l\'appel' });
-    }
-    
-    if (!call) {
-      return res.status(404).json({ message: 'Appel non trouvé' });
-    }
-    
-    res.json(call);
-  });
+  pool.query(query, [id])
+    .then(result => {
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Appel non trouvé' });
+      }
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération de l\'appel:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération de l\'appel' });
+    });
 });
 
 // Créer un nouvel appel
@@ -64,33 +66,35 @@ router.post('/', authenticateToken, (req, res) => {
   }
 
   const query = `
-    INSERT INTO calls (companyId, type, scheduledDateTime, notes, priority, status, userId)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO calls (company_id, type, scheduled_date_time, notes, priority, status, user_id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *
   `;
 
   const values = [
     companyId, type, scheduledDateTime, notes, priority || 'Normal', status || 'Programmé', userId
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la création de l\'appel' });
-    }
-
-    // Récupérer l'appel créé
-    db.get(`
-      SELECT c.*, co.name as companyName, u.name as userName 
-      FROM calls c 
-      LEFT JOIN companies co ON c.companyId = co.id 
-      LEFT JOIN users u ON c.userId = u.id 
-      WHERE c.id = ?
-    `, [this.lastID], (err, call) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération de l\'appel créé' });
-      }
-      res.status(201).json(call);
+  pool.query(query, values)
+    .then(result => {
+      const call = result.rows[0];
+      
+      // Récupérer l'appel avec les noms des entités liées
+      return pool.query(`
+        SELECT c.*, co.name as companyName, u.name as userName 
+        FROM calls c 
+        LEFT JOIN companies co ON c.company_id = co.id 
+        LEFT JOIN users u ON c.user_id = u.id 
+        WHERE c.id = $1
+      `, [call.id]);
+    })
+    .then(result => {
+      res.status(201).json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la création de l\'appel:', err);
+      res.status(500).json({ message: 'Erreur lors de la création de l\'appel' });
     });
-  });
 });
 
 // Mettre à jour un appel
@@ -112,55 +116,54 @@ router.put('/:id', authenticateToken, (req, res) => {
 
   const query = `
     UPDATE calls SET 
-      companyId = ?, type = ?, scheduledDateTime = ?, notes = ?, 
-      priority = ?, status = ?, userId = ?
-    WHERE id = ?
+      company_id = $1, type = $2, scheduled_date_time = $3, notes = $4, 
+      priority = $5, status = $6, user_id = $7
+    WHERE id = $8
   `;
 
   const values = [
     companyId, type, scheduledDateTime, notes, priority, status, userId, id
   ];
 
-  db.run(query, values, function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'appel' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Appel non trouvé' });
-    }
-
-    // Récupérer l'appel mis à jour
-    db.get(`
-      SELECT c.*, co.name as companyName, u.name as userName 
-      FROM calls c 
-      LEFT JOIN companies co ON c.companyId = co.id 
-      LEFT JOIN users u ON c.userId = u.id 
-      WHERE c.id = ?
-    `, [id], (err, call) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la récupération de l\'appel mis à jour' });
+  pool.query(query, values)
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Appel non trouvé' });
       }
-      res.json(call);
+
+      // Récupérer l'appel mis à jour
+      return pool.query(`
+        SELECT c.*, co.name as companyName, u.name as userName 
+        FROM calls c 
+        LEFT JOIN companies co ON c.company_id = co.id 
+        LEFT JOIN users u ON c.user_id = u.id 
+        WHERE c.id = $1
+      `, [id]);
+    })
+    .then(result => {
+      res.json(result.rows[0]);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la mise à jour de l\'appel:', err);
+      res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'appel' });
     });
-  });
 });
 
 // Supprimer un appel
 router.delete('/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
 
-  db.run('DELETE FROM calls WHERE id = ?', [id], function(err) {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la suppression de l\'appel' });
-    }
-
-    if (this.changes === 0) {
-      return res.status(404).json({ message: 'Appel non trouvé' });
-    }
-
-    res.json({ message: 'Appel supprimé avec succès' });
-  });
+  pool.query('DELETE FROM calls WHERE id = $1', [id])
+    .then(result => {
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: 'Appel non trouvé' });
+      }
+      res.json({ message: 'Appel supprimé avec succès' });
+    })
+    .catch(err => {
+      console.error('Erreur lors de la suppression de l\'appel:', err);
+      res.status(500).json({ message: 'Erreur lors de la suppression de l\'appel' });
+    });
 });
 
 // Récupérer les appels par entreprise
@@ -170,18 +173,20 @@ router.get('/company/:companyId', authenticateToken, (req, res) => {
   const query = `
     SELECT c.*, co.name as companyName, u.name as userName 
     FROM calls c 
-    LEFT JOIN companies co ON c.companyId = co.id 
-    LEFT JOIN users u ON c.userId = u.id 
-    WHERE c.companyId = ?
-    ORDER BY c.scheduledDateTime DESC
+    LEFT JOIN companies co ON c.company_id = co.id 
+    LEFT JOIN users u ON c.user_id = u.id 
+    WHERE c.company_id = $1
+    ORDER BY c.scheduled_date_time DESC
   `;
   
-  db.all(query, [companyId], (err, calls) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erreur lors de la récupération des appels' });
-    }
-    res.json(calls);
-  });
+  pool.query(query, [companyId])
+    .then(result => {
+      res.json(result.rows);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la récupération des appels par entreprise:', err);
+      res.status(500).json({ message: 'Erreur lors de la récupération des appels par entreprise' });
+    });
 });
 
 module.exports = router; 
