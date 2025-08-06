@@ -13,7 +13,7 @@ import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { mockCompanies } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const CallForm = () => {
@@ -22,7 +22,7 @@ const CallForm = () => {
   const { companies, addCall } = useStore();
   
   // Combine store companies with mock data
-  const allCompanies = [...companies, ...mockCompanies];
+  const allCompanies = companies;
   const company = allCompanies.find(c => c.id === parseInt(companyId));
 
   const [callData, setCallData] = useState({

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import useStore from '../store/useStore';
 import { useLanguage } from '../contexts/LanguageContext';
-import { mockUsers } from '../data/mockData';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
@@ -23,19 +22,15 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulation d'une authentification
-    setTimeout(() => {
-      const user = mockUsers.find(u => u.email === email);
-      
-      if (user && password === 'password123') {
-        login(user);
-        toast.success(`${t('welcome')} ${user.name} !`);
-        navigate('/dashboard');
-      } else {
-        toast.error(t('loginError'));
-      }
+    try {
+      await login(email, password);
+      toast.success(`${t('welcome')} ${useStore.getState().user?.name} !`);
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.message || t('loginError'));
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -41,7 +41,7 @@ import { fr } from 'date-fns/locale';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockUsers, mockCompanies, mockCalls, mockAppointments } from '../data/mockData';
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -49,11 +49,11 @@ const Stats = () => {
   const { user, isAdmin, companies, calls, appointments } = useStore();
   const [timeRange, setTimeRange] = useState('30d'); // 7d, 30d, 90d, 1y
 
-  // Combine store data with mock data
-  const allCompanies = [...companies, ...mockCompanies];
-  const allCalls = [...calls, ...mockCalls];
-  const allAppointments = [...appointments, ...mockAppointments];
-  const allUsers = mockUsers.filter(u => u.role === 'closer');
+  // Use only real data from store
+  const allCompanies = companies;
+  const allCalls = calls;
+  const allAppointments = appointments;
+  const allUsers = []; // Will be populated from API when users are loaded
 
   // Calculate date range based on selection
   const getDateRange = () => {

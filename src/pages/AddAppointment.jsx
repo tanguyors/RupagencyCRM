@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
@@ -11,15 +11,23 @@ import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { mockCompanies } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const AddAppointment = () => {
   const navigate = useNavigate();
-  const { companies, addAppointment } = useStore();
+  const { companies, addAppointment, isAuthenticated } = useStore();
+  
+  // Vérifier l'authentification
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error('Veuillez vous connecter pour créer un rendez-vous');
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
   
   // Combine store companies with mock data
-  const allCompanies = [...companies, ...mockCompanies];
+  const allCompanies = companies;
 
   const [formData, setFormData] = useState({
     companyId: '',

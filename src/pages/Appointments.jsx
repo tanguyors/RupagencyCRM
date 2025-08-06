@@ -15,7 +15,7 @@ import { fr } from 'date-fns/locale';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockAppointments, mockCompanies } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const Appointments = () => {
@@ -25,8 +25,8 @@ const Appointments = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Combine store appointments with mock data
-  const allAppointments = [...appointments, ...mockAppointments];
-  const allCompanies = [...useStore.getState().companies, ...mockCompanies];
+  const allAppointments = appointments;
+  const allCompanies = useStore.getState().companies;
   
 
 

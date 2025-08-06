@@ -17,7 +17,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { mockCompanies } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const Companies = () => {
@@ -34,8 +34,8 @@ const Companies = () => {
   // Check if we're in "call mode"
   const isCallMode = new URLSearchParams(location.search).get('action') === 'call';
 
-  // Combine store companies with mock data for demo
-  const allCompanies = useMemo(() => [...companies, ...mockCompanies], [companies]);
+  // Use only real companies from store
+  const allCompanies = useMemo(() => companies, [companies]);
 
   const filteredCompanies = useMemo(() => {
     return allCompanies.filter(company => {

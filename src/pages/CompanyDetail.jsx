@@ -20,7 +20,7 @@ import useStore from '../store/useStore';
 import { useLanguage } from '../contexts/LanguageContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockCompanies, mockCalls, mockAppointments } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const CompanyDetail = () => {
@@ -30,9 +30,9 @@ const CompanyDetail = () => {
   const { t } = useLanguage();
   
   // Combine store data with mock data
-  const allCompanies = [...companies, ...mockCompanies];
-  const allCalls = [...useStore.getState().calls, ...mockCalls];
-  const allAppointments = [...useStore.getState().appointments, ...mockAppointments];
+  const allCompanies = companies;
+  const allCalls = useStore.getState().calls;
+  const allAppointments = useStore.getState().appointments;
   
   const company = allCompanies.find(c => c.id === parseInt(companyId));
   const companyCalls = allCalls.filter(call => call.companyId === parseInt(companyId));

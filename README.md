@@ -1,196 +1,189 @@
-# Rupagency CRM - CRM SaaS pour Closers
+# Rupagency CRM
 
-Un CRM moderne et responsive destiné aux closers (cailleurs) en téléprospection, avec une interface fluide et professionnelle orientée business.
+CRM SaaS moderne pour closers en téléprospection avec base de données réelle.
 
 ## 🚀 Fonctionnalités
 
-### Pour les Closers
-- **Dashboard personnalisé** avec aperçu des performances
-- **Gestion des entreprises** avec recherche et filtres avancés
-- **Fiches d'appel interactives** avec chronométrage automatique
-- **Agenda hebdomadaire** avec vue semaine claire
-- **Statistiques détaillées** avec graphiques et classements
-- **Système de gamification** avec XP, niveaux et badges
+- **Gestion des entreprises** : Ajout, modification, suppression et recherche d'entreprises
+- **Gestion des appels** : Planification et suivi des appels de prospection
+- **Gestion des rendez-vous** : Création et suivi des rendez-vous clients
+- **Gestion des utilisateurs** : Système d'authentification et gestion des rôles
+- **Statistiques** : Tableaux de bord avec métriques de performance
+- **Interface moderne** : Design responsive avec thème sombre/clair
+- **Base de données réelle** : SQLite avec API REST complète
 
-### Pour les Administrateurs
-- **Vue globale** de toutes les activités
-- **Gestion des utilisateurs** et des profils
-- **Statistiques d'équipe** avec classements
-- **Contenu éditable** (messages "À la une")
+## 🛠️ Installation
 
-## 🛠 Technologies utilisées
+### Prérequis
 
-- **Frontend**: React 18 + TailwindCSS
-- **State Management**: Zustand
-- **Routing**: React Router v6
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Notifications**: React Hot Toast
-- **Date handling**: date-fns
+- Node.js (version 14 ou supérieure)
+- npm ou yarn
 
-## 📦 Installation
+### Installation des dépendances
 
-1. **Cloner le projet**
-```bash
-git clone <repository-url>
-cd RupagencyCRM
-```
-
-2. **Installer les dépendances**
 ```bash
 npm install
 ```
 
-3. **Lancer l'application**
+### Configuration
+
+1. Créez un fichier `.env` à la racine du projet :
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+```
+
+### Démarrage
+
+#### Mode développement (Frontend + Backend)
+
+```bash
+npm run dev
+```
+
+Cette commande démarre simultanément :
+- Le serveur backend sur le port 5000
+- L'application React sur le port 3000
+
+#### Démarrage séparé
+
+**Backend uniquement :**
+```bash
+npm run server
+```
+
+**Frontend uniquement :**
 ```bash
 npm start
 ```
 
-L'application sera accessible sur `http://localhost:3000`
+## 📊 Base de données
 
-## 🔐 Comptes de démonstration
+Le système utilise SQLite comme base de données. La base de données est automatiquement créée lors du premier démarrage avec des données d'exemple.
 
-### Closer
-- **Email**: `thomas@rupagency.com`
-- **Mot de passe**: `password123`
+### Structure de la base de données
 
-### Administrateur
-- **Email**: `admin@rupagency.com`
-- **Mot de passe**: `password123`
+- **users** : Utilisateurs du système (closers, admin)
+- **companies** : Entreprises prospectées
+- **calls** : Appels de prospection
+- **appointments** : Rendez-vous clients
 
-## 📱 Fonctionnalités principales
+### Données initiales
 
-### 1. Page de Connexion
-- Design moderne et responsive
-- Authentification sécurisée
-- Mode sombre/clair
+Le système est pré-configuré avec :
 
-### 2. Dashboard
-- Widgets de performance en temps réel
-- Contenu "À la une" éditable (admin)
-- RDV du jour et dernières entreprises
-- Statistiques rapides
+**Utilisateurs de test :**
+- Email: `thomas@rupagency.com` / Mot de passe: `password123`
+- Email: `sophie@rupagency.com` / Mot de passe: `password123`
+- Email: `admin@rupagency.com` / Mot de passe: `password123`
 
-### 3. Gestion des Entreprises
-- Formulaire complet d'ajout d'entreprise
-- Liste avec recherche temps réel
-- Filtres par statut, secteur, ville
-- Actions rapides (voir, modifier, supprimer)
+## 🔐 Authentification
 
-### 4. Fiches d'Appel
-- Interface interactive pendant l'appel
-- Chronométrage automatique
-- Types d'appel et résultats prédéfinis
-- Création automatique de RDV si "RDV fixé"
+Le système utilise JWT (JSON Web Tokens) pour l'authentification. Les tokens sont stockés dans le localStorage et renouvelés automatiquement.
 
-### 5. Agenda Hebdomadaire
-- Vue semaine interactive
-- Navigation entre les semaines
-- RDV cliquables avec actions rapides
-- Statuts visuels (confirmé, en attente, annulé)
+## 📱 API REST
 
-### 6. Statistiques
-- Graphiques en barres et camemberts
-- Classement des closers
-- Métriques de performance
-- Système de badges et niveaux
+### Endpoints principaux
 
-## 🎨 Design System
+- `POST /api/auth/login` - Connexion
+- `GET /api/auth/verify` - Vérification du token
 
-### Couleurs
-- **Mode clair**: Blanc, gris clair, bleu doux, crème
-- **Mode sombre**: Gris foncé, bleu nuit
-- **Accents**: Vert (succès), Orange (attention), Rouge (erreur)
+- `GET /api/companies` - Liste des entreprises
+- `POST /api/companies` - Créer une entreprise
+- `PUT /api/companies/:id` - Modifier une entreprise
+- `DELETE /api/companies/:id` - Supprimer une entreprise
 
-### Composants
-- Boutons avec variantes (primary, secondary, outline, ghost, danger)
-- Champs de saisie avec validation
-- Cartes avec ombres subtiles
-- Navigation latérale avec icônes
+- `GET /api/calls` - Liste des appels
+- `POST /api/calls` - Créer un appel
+- `PUT /api/calls/:id` - Modifier un appel
+- `DELETE /api/calls/:id` - Supprimer un appel
 
-## 📊 Structure des données
+- `GET /api/appointments` - Liste des rendez-vous
+- `POST /api/appointments` - Créer un rendez-vous
+- `PUT /api/appointments/:id` - Modifier un rendez-vous
+- `DELETE /api/appointments/:id` - Supprimer un rendez-vous
 
-### Entreprises
-- Informations de base (nom, téléphone, adresse)
-- Informations légales (SIREN, gérant)
-- Informations business (secteur, taille, site web)
-- Notes et statut
+- `GET /api/users` - Liste des utilisateurs
+- `POST /api/users` - Créer un utilisateur
+- `PUT /api/users/:id` - Modifier un utilisateur
+- `DELETE /api/users/:id` - Supprimer un utilisateur
 
-### Appels
-- Type d'appel (Prospection, Contrôle qualité, SAV)
-- Résultat (RDV fixé, Rappel, Refus, Pas de réponse)
-- Durée et résumé
-- Lien vers l'entreprise
+- `GET /api/stats` - Statistiques globales
+- `GET /api/stats/user/:id` - Statistiques par utilisateur
+- `GET /api/stats/monthly` - Statistiques mensuelles
 
-### RDV
-- Date et heure
-- Briefing
-- Statut (En attente, Confirmé, Annulé)
-- Lien vers l'entreprise
+## 🎨 Interface utilisateur
 
-## 🔧 Configuration
+### Thèmes
+- Mode clair/sombre
+- Interface responsive
+- Composants modernes avec Tailwind CSS
 
-### Variables d'environnement
-Créez un fichier `.env` à la racine du projet :
+### Navigation
+- Dashboard avec statistiques
+- Gestion des entreprises
+- Gestion des appels
+- Gestion des rendez-vous
+- Administration des utilisateurs
 
-```env
-REACT_APP_API_URL=http://localhost:3001
-REACT_APP_APP_NAME=Rupagency CRM
+## 🔧 Développement
+
+### Structure du projet
+
+```
+RupagencyCRM/
+├── server/                 # Backend Express.js
+│   ├── routes/            # Routes API
+│   ├── database.js        # Configuration SQLite
+│   └── index.js           # Serveur principal
+├── src/                   # Frontend React
+│   ├── components/        # Composants réutilisables
+│   ├── pages/            # Pages de l'application
+│   ├── services/         # Services API
+│   ├── store/            # Store Zustand
+│   └── contexts/         # Contextes React
+└── public/               # Fichiers statiques
 ```
 
-### Personnalisation
-- Modifiez les couleurs dans `tailwind.config.js`
-- Ajustez les données mockées dans `src/data/mockData.js`
-- Personnalisez les composants UI dans `src/components/ui/`
+### Technologies utilisées
+
+**Backend :**
+- Express.js
+- SQLite3
+- JWT pour l'authentification
+- bcryptjs pour le hashage des mots de passe
+
+**Frontend :**
+- React 18
+- Zustand pour la gestion d'état
+- React Router pour la navigation
+- Tailwind CSS pour le styling
+- Lucide React pour les icônes
 
 ## 🚀 Déploiement
 
-### Build de production
+### Production
+
+1. Build de l'application :
 ```bash
 npm run build
 ```
 
-### Déploiement sur Vercel
-```bash
-npm install -g vercel
-vercel
-```
+2. Le serveur Express sert automatiquement les fichiers statiques du build
 
-### Déploiement sur Netlify
-```bash
-npm run build
-# Uploader le dossier build/ sur Netlify
-```
+3. Configuration des variables d'environnement pour la production
 
-## 📈 Roadmap
+### Variables d'environnement
 
-- [ ] Intégration API backend
-- [ ] Notifications push
-- [ ] Export de données (PDF, Excel)
-- [ ] Intégration calendrier externe
-- [ ] Mode hors ligne
-- [ ] Application mobile (React Native)
-- [ ] Intégration CRM externes
-- [ ] Système de rapports avancés
+- `PORT` : Port du serveur (défaut: 5000)
+- `JWT_SECRET` : Clé secrète pour les JWT
+- `REACT_APP_API_URL` : URL de l'API (frontend)
+
+## 📝 Licence
+
+Ce projet est sous licence MIT.
 
 ## 🤝 Contribution
 
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 📞 Support
-
-Pour toute question ou support :
-- Email: support@rupagency.com
-- Documentation: [docs.rupagency.com](https://docs.rupagency.com)
-
----
-
-**Rupagency CRM** - Optimisez vos performances de téléprospection ! 🚀 
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request. 

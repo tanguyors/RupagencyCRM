@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useStore from './store/useStore';
 import { LanguageProvider } from './contexts/LanguageContext';
+import api from './services/api';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -32,7 +33,8 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const App = () => {
-  const { isAuthenticated, isDarkMode } = useStore();
+  const { isAuthenticated, isDarkMode, initializeData, checkAuth } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
 
   // Apply dark mode to document
   useEffect(() => {
@@ -42,6 +44,37 @@ const App = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Initialize app data
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Check if user is authenticated
+        const isAuth = await checkAuth();
+        if (isAuth) {
+          // Load initial data only if authenticated
+          await initializeData();
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, [checkAuth, initializeData]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-cream-100 dark:from-dark-900 dark:to-dark-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-dark-600 dark:text-dark-400">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <LanguageProvider>

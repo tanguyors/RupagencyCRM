@@ -19,7 +19,7 @@ import { fr } from 'date-fns/locale';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockCompanies, mockAppointments } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const AppointmentDetail = () => {
@@ -28,8 +28,8 @@ const AppointmentDetail = () => {
   const { appointments, updateAppointment, deleteAppointment } = useStore();
   
   // Combine store appointments with mock data
-  const allAppointments = [...appointments, ...mockAppointments];
-  const allCompanies = [...useStore.getState().companies, ...mockCompanies];
+  const allAppointments = appointments;
+  const allCompanies = useStore.getState().companies;
   
   const appointment = allAppointments.find(a => a.id === parseInt(appointmentId));
   const company = appointment ? allCompanies.find(c => c.id === appointment.companyId) : null;

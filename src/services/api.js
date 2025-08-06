@@ -1,0 +1,246 @@
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+class ApiService {
+  constructor() {
+    this.baseURL = API_BASE_URL;
+  }
+
+  setToken(token) {
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+  }
+
+  getHeaders() {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Récupérer le token à chaque appel
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: this.getHeaders(),
+      ...options,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Si l'erreur est liée à l'authentification, rediriger vers login
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          // Rediriger vers la page de login si on est sur une page protégée
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+        }
+        
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  // Auth
+  async login(email, password) {
+    const response = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (response.token) {
+      this.setToken(response.token);
+    }
+    
+    return response;
+  }
+
+  async verifyToken() {
+    return await this.request('/auth/verify');
+  }
+
+  logout() {
+    this.setToken(null);
+  }
+
+  // Companies
+  async getCompanies() {
+    return await this.request('/companies');
+  }
+
+  async getCompany(id) {
+    return await this.request(`/companies/${id}`);
+  }
+
+  async createCompany(companyData) {
+    return await this.request('/companies', {
+      method: 'POST',
+      body: JSON.stringify(companyData),
+    });
+  }
+
+  async updateCompany(id, companyData) {
+    return await this.request(`/companies/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(companyData),
+    });
+  }
+
+  async deleteCompany(id) {
+    return await this.request(`/companies/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async searchCompanies(term) {
+    return await this.request(`/companies/search/${encodeURIComponent(term)}`);
+  }
+
+  // Calls
+  async getCalls() {
+    return await this.request('/calls');
+  }
+
+  async getCall(id) {
+    return await this.request(`/calls/${id}`);
+  }
+
+  async createCall(callData) {
+    return await this.request('/calls', {
+      method: 'POST',
+      body: JSON.stringify(callData),
+    });
+  }
+
+  async updateCall(id, callData) {
+    return await this.request(`/calls/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(callData),
+    });
+  }
+
+  async deleteCall(id) {
+    return await this.request(`/calls/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getCallsByCompany(companyId) {
+    return await this.request(`/calls/company/${companyId}`);
+  }
+
+  // Appointments
+  async getAppointments() {
+    return await this.request('/appointments');
+  }
+
+  async getAppointment(id) {
+    return await this.request(`/appointments/${id}`);
+  }
+
+  async createAppointment(appointmentData) {
+    return await this.request('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(appointmentData),
+    });
+  }
+
+  async updateAppointment(id, appointmentData) {
+    return await this.request(`/appointments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(appointmentData),
+    });
+  }
+
+  async deleteAppointment(id) {
+    return await this.request(`/appointments/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getAppointmentsByCompany(companyId) {
+    return await this.request(`/appointments/company/${companyId}`);
+  }
+
+  async getTodayAppointments() {
+    return await this.request('/appointments/today');
+  }
+
+  // Users
+  async getUsers() {
+    return await this.request('/users');
+  }
+
+  async getUser(id) {
+    return await this.request(`/users/${id}`);
+  }
+
+  async createUser(userData) {
+    return await this.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async updateUser(id, userData) {
+    return await this.request(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async deleteUser(id) {
+    return await this.request(`/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getUsersByRole(role) {
+    return await this.request(`/users/role/${role}`);
+  }
+
+  async getActiveUsers() {
+    return await this.request('/users/status/active');
+  }
+
+  // Stats
+  async getStats() {
+    return await this.request('/stats');
+  }
+
+  async getUserStats(userId) {
+    return await this.request(`/stats/user/${userId}`);
+  }
+
+  async getMonthlyStats() {
+    return await this.request('/stats/monthly');
+  }
+
+  async getSectorStats() {
+    return await this.request('/stats/sectors');
+  }
+
+  async getPerformanceStats() {
+    return await this.request('/stats/performance');
+  }
+}
+
+export default new ApiService(); 

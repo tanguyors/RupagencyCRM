@@ -17,7 +17,7 @@ import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { mockCompanies } from '../data/mockData';
+
 import toast from 'react-hot-toast';
 
 const CallExecute = () => {
@@ -26,7 +26,7 @@ const CallExecute = () => {
   const { calls, companies, updateCall, addAppointment } = useStore();
   
   // Combine store companies with mock data
-  const allCompanies = [...companies, ...mockCompanies];
+  const allCompanies = companies;
   const call = calls.find(c => c.id === parseInt(callId));
   const company = call ? allCompanies.find(c => c.id === call.companyId) : null;
 

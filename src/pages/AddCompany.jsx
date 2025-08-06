@@ -64,7 +64,7 @@ const AddCompany = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -78,9 +78,13 @@ const AddCompany = () => {
       assignedTo: useStore.getState().user?.id || 1,
     };
 
-    addCompany(companyData);
-    toast.success('Entreprise ajoutée avec succès !');
-    navigate('/companies');
+    try {
+      await addCompany(companyData);
+      toast.success('Entreprise ajoutée avec succès !');
+      navigate('/companies');
+    } catch (error) {
+      toast.error(error.message || 'Erreur lors de l\'ajout de l\'entreprise');
+    }
   };
 
   const sectors = [

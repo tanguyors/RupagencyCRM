@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { mockUsers, mockCompanies, mockCalls, mockAppointments } from '../data/mockData';
+import api from '../services/api';
 
 const useStore = create(
   persist(
@@ -17,10 +17,10 @@ const useStore = create(
       language: 'fr',
       
       // Data
-      companies: mockCompanies,
-      calls: mockCalls,
-      appointments: mockAppointments,
-      users: mockUsers,
+      companies: [],
+      calls: [],
+      appointments: [],
+      users: [],
       stats: {
         totalCalls: 0,
         totalAppointments: 0,
@@ -32,17 +32,58 @@ const useStore = create(
       featuredContent: "Bienvenue sur votre CRM Rupagency ! Prêt à optimiser vos performances ?",
       
       // Actions
-      login: (userData) => set({
-        user: userData,
-        isAuthenticated: true,
-        isAdmin: userData.role === 'admin',
-      }),
+      login: async (email, password) => {
+        try {
+          const response = await api.login(email, password);
+          set({
+            user: response.user,
+            isAuthenticated: true,
+            isAdmin: response.user.role === 'admin',
+          });
+          return response;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      logout: () => set({
-        user: null,
-        isAuthenticated: false,
-        isAdmin: false,
-      }),
+      logout: () => {
+        api.logout();
+        set({
+          user: null,
+          isAuthenticated: false,
+          isAdmin: false,
+        });
+      },
+
+      // Vérifier l'authentification au démarrage
+      checkAuth: async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isAdmin: false,
+            });
+            return false;
+          }
+
+          const response = await api.verifyToken();
+          set({
+            user: response.user,
+            isAuthenticated: true,
+            isAdmin: response.user.role === 'admin',
+          });
+          return true;
+        } catch (error) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isAdmin: false,
+          });
+          return false;
+        }
+      },
       
       toggleTheme: () => set((state) => ({
         isDarkMode: !state.isDarkMode,
@@ -53,69 +94,221 @@ const useStore = create(
       }),
       
       // Companies
-      addCompany: (company) => set((state) => ({
-        companies: [...state.companies, { ...company, id: Date.now(), createdAt: new Date().toISOString() }],
-      })),
+      addCompany: async (company) => {
+        try {
+          const newCompany = await api.createCompany(company);
+          set((state) => ({
+            companies: [newCompany, ...state.companies],
+          }));
+          return newCompany;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      updateCompany: (id, updates) => set((state) => ({
-        companies: state.companies.map(company => 
-          company.id === id ? { ...company, ...updates } : company
-        ),
-      })),
+      updateCompany: async (id, updates) => {
+        try {
+          const updatedCompany = await api.updateCompany(id, updates);
+          set((state) => ({
+            companies: state.companies.map(company => 
+              company.id === id ? updatedCompany : company
+            ),
+          }));
+          return updatedCompany;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      deleteCompany: (id) => set((state) => ({
-        companies: state.companies.filter(company => company.id !== id),
-      })),
+      deleteCompany: async (id) => {
+        try {
+          await api.deleteCompany(id);
+          set((state) => ({
+            companies: state.companies.filter(company => company.id !== id),
+          }));
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      fetchCompanies: async () => {
+        try {
+          const companies = await api.getCompanies();
+          set({ companies });
+        } catch (error) {
+          throw error;
+        }
+      },
       
       // Calls
-      addCall: (call) => set((state) => ({
-        calls: [...state.calls, { ...call, id: Date.now(), createdAt: new Date().toISOString() }],
-      })),
+      addCall: async (call) => {
+        try {
+          const newCall = await api.createCall(call);
+          set((state) => ({
+            calls: [newCall, ...state.calls],
+          }));
+          return newCall;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      updateCall: (id, updates) => set((state) => ({
-        calls: state.calls.map(call => 
-          call.id === id ? { ...call, ...updates } : call
-        ),
-      })),
+      updateCall: async (id, updates) => {
+        try {
+          const updatedCall = await api.updateCall(id, updates);
+          set((state) => ({
+            calls: state.calls.map(call => 
+              call.id === id ? updatedCall : call
+            ),
+          }));
+          return updatedCall;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      deleteCall: (id) => set((state) => ({
-        calls: state.calls.filter(call => call.id !== id),
-      })),
+      deleteCall: async (id) => {
+        try {
+          await api.deleteCall(id);
+          set((state) => ({
+            calls: state.calls.filter(call => call.id !== id),
+          }));
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      fetchCalls: async () => {
+        try {
+          const calls = await api.getCalls();
+          set({ calls });
+        } catch (error) {
+          throw error;
+        }
+      },
       
       // Appointments
-      addAppointment: (appointment) => set((state) => ({
-        appointments: [...state.appointments, { ...appointment, id: Date.now(), createdAt: new Date().toISOString() }],
-      })),
+      addAppointment: async (appointment) => {
+        try {
+          const newAppointment = await api.createAppointment(appointment);
+          set((state) => ({
+            appointments: [newAppointment, ...state.appointments],
+          }));
+          return newAppointment;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      updateAppointment: (id, updates) => set((state) => ({
-        appointments: state.appointments.map(appointment => 
-          appointment.id === id ? { ...appointment, ...updates } : appointment
-        ),
-      })),
+      updateAppointment: async (id, updates) => {
+        try {
+          const updatedAppointment = await api.updateAppointment(id, updates);
+          set((state) => ({
+            appointments: state.appointments.map(appointment => 
+              appointment.id === id ? updatedAppointment : appointment
+            ),
+          }));
+          return updatedAppointment;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      deleteAppointment: (id) => set((state) => ({
-        appointments: state.appointments.filter(appointment => appointment.id !== id),
-      })),
+      deleteAppointment: async (id) => {
+        try {
+          await api.deleteAppointment(id);
+          set((state) => ({
+            appointments: state.appointments.filter(appointment => appointment.id !== id),
+          }));
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      fetchAppointments: async () => {
+        try {
+          const appointments = await api.getAppointments();
+          set({ appointments });
+        } catch (error) {
+          throw error;
+        }
+      },
       
       // Users
-      addUser: (user) => set((state) => ({
-        users: [...state.users, { ...user, id: Date.now(), createdAt: new Date().toISOString() }],
-      })),
+      addUser: async (user) => {
+        try {
+          const newUser = await api.createUser(user);
+          set((state) => ({
+            users: [newUser, ...state.users],
+          }));
+          return newUser;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      updateUser: (id, updates) => set((state) => ({
-        users: state.users.map(user => 
-          user.id === id ? { ...user, ...updates } : user
-        ),
-      })),
+      updateUser: async (id, updates) => {
+        try {
+          const updatedUser = await api.updateUser(id, updates);
+          set((state) => ({
+            users: state.users.map(user => 
+              user.id === id ? updatedUser : user
+            ),
+          }));
+          return updatedUser;
+        } catch (error) {
+          throw error;
+        }
+      },
       
-      deleteUser: (id) => set((state) => ({
-        users: state.users.filter(user => user.id !== id),
-      })),
+      deleteUser: async (id) => {
+        try {
+          await api.deleteUser(id);
+          set((state) => ({
+            users: state.users.filter(user => user.id !== id),
+          }));
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      fetchUsers: async () => {
+        try {
+          const users = await api.getUsers();
+          set({ users });
+        } catch (error) {
+          throw error;
+        }
+      },
       
       // Stats
       updateStats: (newStats) => set({
         stats: { ...get().stats, ...newStats },
       }),
+
+      fetchStats: async () => {
+        try {
+          const stats = await api.getStats();
+          set({ stats });
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      // Initialize all data
+      initializeData: async () => {
+        try {
+          await Promise.all([
+            get().fetchCompanies(),
+            get().fetchCalls(),
+            get().fetchAppointments(),
+            get().fetchUsers(),
+            get().fetchStats()
+          ]);
+        } catch (error) {
+          console.error('Error initializing data:', error);
+        }
+      },
       
       // Featured content
       updateFeaturedContent: (content) => set({
