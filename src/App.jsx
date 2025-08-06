@@ -75,9 +75,6 @@ const App = () => {
     );
   }
 
-  //salut c'est le commentaire pour le redeploiement
-  
-
   return (
     <LanguageProvider>
       <Router>
@@ -124,22 +121,11 @@ const App = () => {
           />
           
           <Route 
-            path="/companies/:companyId" 
+            path="/companies/:id" 
             element={
               <ProtectedRoute>
                 <Layout>
                   <CompanyDetail />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/companies/:companyId/call" 
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <CallForm />
                 </Layout>
               </ProtectedRoute>
             } 
@@ -157,7 +143,18 @@ const App = () => {
           />
           
           <Route 
-            path="/calls/:callId/execute" 
+            path="/calls/add" 
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <CallForm />
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/calls/:id/execute" 
             element={
               <ProtectedRoute>
                 <Layout>
@@ -190,11 +187,22 @@ const App = () => {
           />
           
           <Route 
-            path="/appointments/:appointmentId" 
+            path="/appointments/:id" 
             element={
               <ProtectedRoute>
                 <Layout>
                   <AppointmentDetail />
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/stats" 
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Stats />
                 </Layout>
               </ProtectedRoute>
             } 
@@ -223,7 +231,7 @@ const App = () => {
           />
           
           <Route 
-            path="/admin/users/:userId/edit" 
+            path="/admin/users/:id/edit" 
             element={
               <ProtectedRoute>
                 <Layout>
@@ -234,7 +242,7 @@ const App = () => {
           />
           
           <Route 
-            path="/admin/users/:userId" 
+            path="/admin/users/:id" 
             element={
               <ProtectedRoute>
                 <Layout>
@@ -245,30 +253,17 @@ const App = () => {
           />
           
           <Route 
-            path="/stats" 
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Stats />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Redirect root to dashboard */}
-          <Route 
             path="/" 
             element={<Navigate to="/dashboard" replace />} 
           />
           
-          {/* Catch all route */}
           <Route 
             path="*" 
             element={<Navigate to="/dashboard" replace />} 
           />
-        </Routes>
-      </div>
-    </Router>
+          </Routes>
+        </div>
+      </Router>
     </LanguageProvider>
   );
 };
