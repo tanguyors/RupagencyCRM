@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   Building2, 
-  Clock,
   Save,
   ArrowLeft
 } from 'lucide-react';

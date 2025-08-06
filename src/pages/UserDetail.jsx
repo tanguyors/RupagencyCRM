@@ -1,9 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Phone, Calendar, TrendingUp, Award, Activity, Mail, MapPin } from 'lucide-react';
-import { format, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, isWithinInterval, subDays, subMonths } from 'date-fns';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  User, 
+  Phone, 
+  Mail, 
+  Calendar, 
+  Award, 
+  TrendingUp, 
+  ArrowLeft,
+  Edit,
+  Trash2,
+  Star,
+  Trophy,
+  Zap,
+  Activity
+} from 'lucide-react';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

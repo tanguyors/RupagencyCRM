@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, User, Shield, Phone, Award } from 'lucide-react';
+import { 
+  User, 
+  Mail, 
+  Lock, 
+  Shield,
+  Save,
+  ArrowLeft
+} from 'lucide-react';
 import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
-  ArrowLeft, 
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Globe,
-  Edit,
-  Trash2,
-  Calendar,
-  Clock,
-  Plus
+  Phone, 
+  Mail, 
+  MapPin, 
+  Globe, 
+  Calendar, 
+  Clock, 
+  Users, 
+  TrendingUp, 
+  Edit, 
+  Trash2, 
+  ArrowLeft,
+  Eye,
+  PhoneCall,
+  CalendarDays
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -285,7 +288,7 @@ const CompanyDetail = () => {
               <div className="space-y-2">
                 {company.manager && (
                   <div className="flex items-center text-sm text-dark-600 dark:text-dark-400">
-                    <User className="w-4 h-4 mr-2" />
+                    <Users className="w-4 h-4 mr-2" />
                     <span className="font-medium mr-2">Gérant:</span>
                     {company.manager}
                   </div>
