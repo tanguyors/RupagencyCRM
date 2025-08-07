@@ -132,6 +132,17 @@ const App = () => {
           />
           
           <Route 
+            path="/companies/:id/call" 
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <CallForm />
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
             path="/calls" 
             element={
               <ProtectedRoute>
