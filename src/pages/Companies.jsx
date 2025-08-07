@@ -9,7 +9,8 @@ import {
   Mail, 
   MapPin,
   Eye,
-  Trash2
+  Trash2,
+  Globe
 } from 'lucide-react';
 import useStore from '../store/useStore';
 import { useLanguage } from '../contexts/LanguageContext';
