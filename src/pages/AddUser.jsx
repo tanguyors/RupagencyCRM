@@ -11,6 +11,7 @@ import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import toast from 'react-hot-toast';
 
 const AddUser = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const AddUser = () => {
     name: '',
     email: '',
     phone: '',
+    password: '',
     role: 'closer',
     status: 'active',
     level: 1,
@@ -62,6 +64,12 @@ const AddUser = () => {
       newErrors.phone = 'Le téléphone est requis';
     }
 
+    if (!formData.password.trim()) {
+      newErrors.password = 'Le mot de passe est requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+
     // Check if email already exists
     const emailExists = users.some(user => user.email === formData.email);
     if (emailExists) {
@@ -72,24 +80,30 @@ const AddUser = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
+      toast.error('Veuillez corriger les erreurs dans le formulaire');
       return;
     }
 
-    const newUser = {
-      id: Date.now(), // Simple ID generation
-      ...formData,
-      calls: 0,
-      appointments: 0,
-      revenue: 0,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const newUser = {
+        ...formData,
+        calls: 0,
+        appointments: 0,
+        revenue: 0,
+        createdAt: new Date().toISOString()
+      };
 
-    addUser(newUser);
-    navigate('/admin');
+      await addUser(newUser);
+      toast.success('Utilisateur créé avec succès !');
+      navigate('/admin');
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      toast.error(error.message || 'Erreur lors de la création de l\'utilisateur');
+    }
   };
 
   return (
@@ -165,6 +179,20 @@ const AddUser = () => {
                   onChange={handleInputChange}
                   placeholder="+33 6 12 34 56 78"
                   error={errors.phone}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-2">
+                  Mot de passe *
+                </label>
+                <Input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Mot de passe"
+                  error={errors.password}
                 />
               </div>
             </div>
