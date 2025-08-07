@@ -141,7 +141,9 @@ const useStore = create(
 
       fetchCompanies: async () => {
         try {
+          console.log('Chargement des entreprises depuis l\'API...');
           const companies = await api.getCompanies();
+          console.log('Entreprises récupérées:', companies.length, 'entreprises');
           set({ companies });
         } catch (error) {
           console.error('Erreur lors du chargement des entreprises depuis l\'API:', error);
@@ -310,6 +312,7 @@ const useStore = create(
       // Initialize all data
       initializeData: async () => {
         try {
+          console.log('Initialisation des données...');
           await Promise.all([
             get().fetchCompanies(),
             get().fetchCalls(),
@@ -317,6 +320,7 @@ const useStore = create(
             get().fetchUsers(),
             get().fetchStats()
           ]);
+          console.log('Données initialisées avec succès');
         } catch (error) {
           console.error('Error initializing data:', error);
         }

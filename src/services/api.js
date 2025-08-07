@@ -37,8 +37,13 @@ class ApiService {
       ...options,
     };
 
+    console.log('API: Requête vers:', url);
+    console.log('API: Headers:', config.headers);
+
     try {
       const response = await fetch(url, config);
+      
+      console.log('API: Statut de la réponse:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -55,7 +60,9 @@ class ApiService {
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log('API: Réponse reçue:', result);
+      return result;
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
@@ -86,7 +93,12 @@ class ApiService {
 
   // Companies
   async getCompanies() {
-    return await this.request('/companies');
+    console.log('API: Appel getCompanies()');
+    console.log('API: URL de base:', this.baseURL);
+    console.log('API: Token disponible:', !!localStorage.getItem('token'));
+    const result = await this.request('/companies');
+    console.log('API: Résultat getCompanies:', result);
+    return result;
   }
 
   async getCompany(id) {

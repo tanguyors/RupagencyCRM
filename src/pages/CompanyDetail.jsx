@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Building2, 
@@ -26,7 +26,7 @@ import toast from 'react-hot-toast';
 const CompanyDetail = () => {
   const navigate = useNavigate();
   const { companyId } = useParams();
-  const { companies, updateCompany, deleteCompany, initializeData } = useStore();
+  const { companies, updateCompany, deleteCompany, initializeData, fetchCompanies } = useStore();
   const { t } = useLanguage();
   
   // Combine store data with mock data
@@ -38,6 +38,17 @@ const CompanyDetail = () => {
   const company = allCompanies.find(c => c.id === parsedCompanyId);
   const companyCalls = allCalls.filter(call => call.companyId === parsedCompanyId);
   const companyAppointments = allAppointments.filter(appointment => appointment.companyId === parsedCompanyId);
+
+  // Forcer le chargement des entreprises si elles ne sont pas disponibles
+  useEffect(() => {
+    if (allCompanies.length === 0) {
+      console.log('Aucune entreprise chargée, tentative de chargement...');
+      fetchCompanies().catch(error => {
+        console.error('Erreur lors du chargement des entreprises:', error);
+        toast.error('Erreur lors du chargement des entreprises');
+      });
+    }
+  }, [allCompanies.length, fetchCompanies]);
 
   // Debug: afficher les informations pour diagnostiquer le problème
   console.log('CompanyDetail Debug:', {

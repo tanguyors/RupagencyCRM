@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Phone, 
@@ -19,12 +19,23 @@ import toast from 'react-hot-toast';
 const CallForm = () => {
   const navigate = useNavigate();
   const { companyId } = useParams();
-  const { companies, addCall } = useStore();
+  const { companies, addCall, fetchCompanies } = useStore();
   
   // Combine store companies with mock data
   const allCompanies = companies;
   const parsedCompanyId = parseInt(companyId);
   const company = allCompanies.find(c => c.id === parsedCompanyId);
+
+  // Forcer le chargement des entreprises si elles ne sont pas disponibles
+  useEffect(() => {
+    if (allCompanies.length === 0) {
+      console.log('Aucune entreprise chargée, tentative de chargement...');
+      fetchCompanies().catch(error => {
+        console.error('Erreur lors du chargement des entreprises:', error);
+        toast.error('Erreur lors du chargement des entreprises');
+      });
+    }
+  }, [allCompanies.length, fetchCompanies]);
 
   // Debug: afficher les informations pour diagnostiquer le problème
   console.log('CallForm Debug:', {

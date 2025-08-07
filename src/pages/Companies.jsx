@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Building2, 
@@ -23,7 +23,7 @@ import toast from 'react-hot-toast';
 const Companies = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { companies, deleteCompany } = useStore();
+  const { companies, deleteCompany, fetchCompanies } = useStore();
   const { t } = useLanguage();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +36,17 @@ const Companies = () => {
 
   // Use only real companies from store
   const allCompanies = useMemo(() => companies, [companies]);
+
+  // Forcer le chargement des entreprises si elles ne sont pas disponibles
+  useEffect(() => {
+    if (allCompanies.length === 0) {
+      console.log('Aucune entreprise chargée, tentative de chargement...');
+      fetchCompanies().catch(error => {
+        console.error('Erreur lors du chargement des entreprises:', error);
+        toast.error('Erreur lors du chargement des entreprises');
+      });
+    }
+  }, [allCompanies.length, fetchCompanies]);
 
   const filteredCompanies = useMemo(() => {
     return allCompanies.filter(company => {
