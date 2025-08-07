@@ -23,7 +23,17 @@ const CallForm = () => {
   
   // Combine store companies with mock data
   const allCompanies = companies;
-  const company = allCompanies.find(c => c.id === parseInt(companyId));
+  const parsedCompanyId = parseInt(companyId);
+  const company = allCompanies.find(c => c.id === parsedCompanyId);
+
+  // Debug: afficher les informations pour diagnostiquer le problème
+  console.log('CallForm Debug:', {
+    companyId,
+    parsedCompanyId,
+    companiesCount: allCompanies.length,
+    companies: allCompanies.map(c => ({ id: c.id, name: c.name })),
+    foundCompany: company
+  });
 
   const [callData, setCallData] = useState({
     type: 'Prospection',
@@ -68,9 +78,18 @@ const CallForm = () => {
         <h2 className="text-xl font-semibold text-dark-900 dark:text-cream-50">
           Entreprise non trouvée
         </h2>
-        <Button onClick={() => navigate('/companies')} className="mt-4">
-          Retour aux entreprises
-        </Button>
+        <p className="text-dark-600 dark:text-dark-400 mt-2 mb-4">
+          L'entreprise avec l'ID {companyId} n'a pas été trouvée.
+          {allCompanies.length === 0 ? ' Aucune entreprise chargée.' : ` ${allCompanies.length} entreprises disponibles.`}
+        </p>
+        <div className="space-x-4">
+          <Button onClick={() => navigate('/companies')} className="mt-4">
+            Retour aux entreprises
+          </Button>
+          <Button onClick={() => window.location.reload()} variant="outline" className="mt-4">
+            Recharger la page
+          </Button>
+        </div>
       </div>
     );
   }

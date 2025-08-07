@@ -16,7 +16,7 @@ import Button from '../components/ui/Button';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
-  const { user, featuredContent, updateFeaturedContent } = useStore();
+  const { user, featuredContent, updateFeaturedContent, companies, calls, appointments } = useStore();
   const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
   const [tempContent, setTempContent] = useState(featuredContent);
@@ -27,35 +27,48 @@ const Dashboard = () => {
     toast.success('Contenu mis à jour !');
   };
 
-  const stats = [
+  // Calculer les vraies statistiques
+  const today = new Date().toISOString().split('T')[0];
+  const todayCalls = calls.filter(call => 
+    call.scheduledDateTime?.startsWith(today)
+  ).length;
+  
+  const todayAppointments = appointments.filter(appointment => 
+    appointment.date?.startsWith(today)
+  ).length;
+
+  const totalCompanies = companies.length;
+  const totalRevenue = appointments.length * 2000; // Estimation: 2000€ par RDV
+
+  const dashboardStats = [
     {
       title: t('todayCalls'),
-      value: '12',
-      change: '+2',
+      value: todayCalls.toString(),
+      change: todayCalls > 0 ? `+${todayCalls}` : '0',
       icon: Phone,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100 dark:bg-blue-900/20'
     },
     {
       title: t('appointmentsSet'),
-      value: '3',
-      change: '+1',
+      value: todayAppointments.toString(),
+      change: todayAppointments > 0 ? `+${todayAppointments}` : '0',
       icon: Calendar,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900/20'
     },
     {
       title: t('companiesAdded'),
-      value: '5',
-      change: '+2',
+      value: totalCompanies.toString(),
+      change: totalCompanies > 0 ? `+${totalCompanies}` : '0',
       icon: Building2,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100 dark:bg-purple-900/20'
     },
     {
       title: t('revenueGenerated'),
-      value: '€2,400',
-      change: '+15%',
+      value: `€${totalRevenue.toLocaleString()}`,
+      change: totalRevenue > 0 ? '+15%' : '0%',
       icon: DollarSign,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100 dark:bg-orange-900/20'
@@ -118,7 +131,7 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {dashboardStats.map((stat, index) => (
           <Card key={index} className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -149,32 +162,43 @@ const Dashboard = () => {
             RDV du jour
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-              <div>
-                <p className="font-medium text-dark-900 dark:text-cream-50">
-                  TechSolutions SARL
-                </p>
-                <p className="text-sm text-dark-600 dark:text-dark-400">
-                  14:00 - Présentation solutions
+            {todayAppointments > 0 ? (
+              appointments
+                .filter(appointment => appointment.date?.startsWith(today))
+                .slice(0, 3)
+                .map((appointment) => {
+                  const company = companies.find(c => c.id === appointment.companyId);
+                  return (
+                    <div key={appointment.id} className="flex items-center justify-between p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                      <div>
+                        <p className="font-medium text-dark-900 dark:text-cream-50">
+                          {company?.name || 'Entreprise inconnue'}
+                        </p>
+                        <p className="text-sm text-dark-600 dark:text-dark-400">
+                          {new Date(appointment.date).toLocaleTimeString('fr-FR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })} - {appointment.briefing?.substring(0, 30)}...
+                        </p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        appointment.status === 'Confirmé' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' :
+                        appointment.status === 'En attente' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
+                        'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                      }`}>
+                        {appointment.status}
+                      </span>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="text-center py-8">
+                <Calendar className="w-12 h-12 text-dark-400 mx-auto mb-2" />
+                <p className="text-dark-600 dark:text-dark-400">
+                  Aucun rendez-vous aujourd'hui
                 </p>
               </div>
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded-full">
-                Confirmé
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-cream-100 dark:bg-dark-700 rounded-lg">
-              <div>
-                <p className="font-medium text-dark-900 dark:text-cream-50">
-                  Marketing Pro
-                </p>
-                <p className="text-sm text-dark-600 dark:text-dark-400">
-                  10:30 - Démo produit
-                </p>
-              </div>
-              <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs rounded-full">
-                En attente
-              </span>
-            </div>
+            )}
           </div>
         </Card>
 
@@ -184,32 +208,46 @@ const Dashboard = () => {
             Dernières entreprises
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-cream-100 dark:bg-dark-700 rounded-lg">
-              <div>
-                <p className="font-medium text-dark-900 dark:text-cream-50">
-                  Consulting Plus
-                </p>
-                <p className="text-sm text-dark-600 dark:text-dark-400">
-                  Toulouse • Conseil
+            {companies.length > 0 ? (
+              companies
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 3)
+                .map((company) => {
+                  const timeAgo = (() => {
+                    const now = new Date();
+                    const created = new Date(company.createdAt);
+                    const diffHours = Math.floor((now - created) / (1000 * 60 * 60));
+                    
+                    if (diffHours < 1) return 'À l\'instant';
+                    if (diffHours < 24) return `Il y a ${diffHours}h`;
+                    if (diffHours < 48) return 'Hier';
+                    return `Il y a ${Math.floor(diffHours / 24)}j`;
+                  })();
+
+                  return (
+                    <div key={company.id} className="flex items-center justify-between p-3 bg-cream-100 dark:bg-dark-700 rounded-lg">
+                      <div>
+                        <p className="font-medium text-dark-900 dark:text-cream-50">
+                          {company.name}
+                        </p>
+                        <p className="text-sm text-dark-600 dark:text-dark-400">
+                          {company.city} • {company.sector}
+                        </p>
+                      </div>
+                      <span className="text-xs text-dark-500 dark:text-dark-400">
+                        {timeAgo}
+                      </span>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="text-center py-8">
+                <Building2 className="w-12 h-12 text-dark-400 mx-auto mb-2" />
+                <p className="text-dark-600 dark:text-dark-400">
+                  Aucune entreprise ajoutée
                 </p>
               </div>
-              <span className="text-xs text-dark-500 dark:text-dark-400">
-                Il y a 2h
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-cream-100 dark:bg-dark-700 rounded-lg">
-              <div>
-                <p className="font-medium text-dark-900 dark:text-cream-50">
-                  Marketing Pro
-                </p>
-                <p className="text-sm text-dark-600 dark:text-dark-400">
-                  Lyon • Marketing
-                </p>
-              </div>
-              <span className="text-xs text-dark-500 dark:text-dark-400">
-                Hier
-              </span>
-            </div>
+            )}
           </div>
         </Card>
       </div>

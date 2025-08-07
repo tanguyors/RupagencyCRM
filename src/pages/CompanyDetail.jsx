@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 const CompanyDetail = () => {
   const navigate = useNavigate();
   const { companyId } = useParams();
-  const { companies, updateCompany, deleteCompany } = useStore();
+  const { companies, updateCompany, deleteCompany, initializeData } = useStore();
   const { t } = useLanguage();
   
   // Combine store data with mock data
@@ -33,9 +33,19 @@ const CompanyDetail = () => {
   const allCalls = useStore.getState().calls;
   const allAppointments = useStore.getState().appointments;
   
-  const company = allCompanies.find(c => c.id === parseInt(companyId));
-  const companyCalls = allCalls.filter(call => call.companyId === parseInt(companyId));
-  const companyAppointments = allAppointments.filter(appointment => appointment.companyId === parseInt(companyId));
+  const parsedCompanyId = parseInt(companyId);
+  const company = allCompanies.find(c => c.id === parsedCompanyId);
+  const companyCalls = allCalls.filter(call => call.companyId === parsedCompanyId);
+  const companyAppointments = allAppointments.filter(appointment => appointment.companyId === parsedCompanyId);
+
+  // Debug: afficher les informations pour diagnostiquer le problème
+  console.log('CompanyDetail Debug:', {
+    companyId,
+    parsedCompanyId,
+    companiesCount: allCompanies.length,
+    companies: allCompanies.map(c => ({ id: c.id, name: c.name })),
+    foundCompany: company
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -58,9 +68,26 @@ const CompanyDetail = () => {
         <h2 className="text-xl font-semibold text-dark-900 dark:text-cream-50">
           {t('companyNotFound')}
         </h2>
-        <Button onClick={() => navigate('/companies')} className="mt-4">
-          {t('back')} {t('companies').toLowerCase()}
-        </Button>
+        <p className="text-dark-600 dark:text-dark-400 mt-2 mb-4">
+          L'entreprise avec l'ID {companyId} n'a pas été trouvée.
+          {allCompanies.length === 0 ? ' Aucune entreprise chargée.' : ` ${allCompanies.length} entreprises disponibles.`}
+        </p>
+        <div className="space-x-4">
+          <Button onClick={() => navigate('/companies')} className="mt-4">
+            {t('back')} {t('companies').toLowerCase()}
+          </Button>
+          <Button onClick={async () => {
+            try {
+              await initializeData();
+              window.location.reload();
+            } catch (error) {
+              console.error('Erreur lors du rechargement des données:', error);
+              window.location.reload();
+            }
+          }} variant="outline" className="mt-4">
+            Recharger les données
+          </Button>
+        </div>
       </div>
     );
   }
