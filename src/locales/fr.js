@@ -139,7 +139,7 @@ const fr = {
   
   // Activity types
   newCompanyAdded: 'Nouvelle entreprise ajoutée',
-  callCompleted: 'Appel terminé',
+  callCompletedActivity: 'Appel terminé',
   appointmentCreated: 'Rendez-vous créé',
   companyDeleted: 'Entreprise supprimée',
   callMade: 'Appel effectué',
