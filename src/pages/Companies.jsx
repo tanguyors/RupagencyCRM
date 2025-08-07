@@ -255,6 +255,22 @@ const Companies = () => {
                   {company.email}
                 </div>
               )}
+              
+              {(company.googleRating || company.googleReviewsCount) && (
+                <div className="flex items-center text-sm text-dark-600 dark:text-dark-400">
+                  <Globe className="w-4 h-4 mr-2" />
+                  {company.googleRating && (
+                    <span className="mr-2">
+                      ⭐ {company.googleRating}/5
+                    </span>
+                  )}
+                  {company.googleReviewsCount && (
+                    <span>
+                      ({company.googleReviewsCount} avis)
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {company.notes && (

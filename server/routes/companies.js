@@ -19,6 +19,8 @@ const transformCompanyData = (row) => ({
   website: row.website,
   size: row.size,
   notes: row.notes,
+  googleRating: row.google_rating,
+  googleReviewsCount: row.google_reviews_count,
   status: row.status,
   assignedTo: row.assigned_to,
   createdAt: row.created_at,
@@ -85,6 +87,8 @@ router.post('/', authenticateToken, (req, res) => {
     website,
     size,
     notes,
+    googleRating,
+    googleReviewsCount,
     status,
     assignedTo
   } = req.body;
@@ -96,14 +100,14 @@ router.post('/', authenticateToken, (req, res) => {
   const query = `
     INSERT INTO companies (
       name, phone, city, postal_code, country, siren, manager, 
-      sector, email, website, size, notes, status, assigned_to
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      sector, email, website, size, notes, google_rating, google_reviews_count, status, assigned_to
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
     RETURNING *
   `;
 
   const values = [
     name, phone, city, postalCode, country, siren, manager,
-    sector, email, website, size, notes, status || 'Prospect', assignedTo
+    sector, email, website, size, notes, googleRating, googleReviewsCount, status || 'Prospect', assignedTo
   ];
 
   pool.query(query, values)
@@ -144,6 +148,8 @@ router.put('/:id', authenticateToken, (req, res) => {
     website,
     size,
     notes,
+    googleRating,
+    googleReviewsCount,
     status,
     assignedTo
   } = req.body;
@@ -156,13 +162,13 @@ router.put('/:id', authenticateToken, (req, res) => {
     UPDATE companies SET 
       name = $1, phone = $2, city = $3, postal_code = $4, country = $5, 
       siren = $6, manager = $7, sector = $8, email = $9, website = $10, 
-      size = $11, notes = $12, status = $13, assigned_to = $14
-    WHERE id = $15
+      size = $11, notes = $12, google_rating = $13, google_reviews_count = $14, status = $15, assigned_to = $16
+    WHERE id = $17
   `;
 
   const values = [
     name, phone, city, postalCode, country, siren, manager,
-    sector, email, website, size, notes, status, assignedTo, id
+    sector, email, website, size, notes, googleRating, googleReviewsCount, status, assignedTo, id
   ];
 
   pool.query(query, values)

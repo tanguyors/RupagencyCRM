@@ -13,8 +13,7 @@ const useStore = create(
       // Theme
       isDarkMode: false,
       
-      // Language
-      language: 'fr',
+      // Language is now handled by LanguageContext
       
       // Data (NE PAS PERSISTER - chargé depuis l'API)
       companies: [],
@@ -100,9 +99,7 @@ const useStore = create(
         isDarkMode: !state.isDarkMode,
       })),
       
-      setLanguage: (language) => set({
-        language,
-      }),
+      // Language management moved to LanguageContext
       
       // Companies
       addCompany: async (company) => {
@@ -356,7 +353,6 @@ const useStore = create(
         isAuthenticated: state.isAuthenticated,
         isAdmin: state.isAdmin,
         isDarkMode: state.isDarkMode,
-        language: state.language,
         featuredContent: state.featuredContent,
         // NE PAS persister : companies, calls, appointments, users, stats
       }),

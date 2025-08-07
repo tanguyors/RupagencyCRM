@@ -74,6 +74,8 @@ const translations = {
   postalCode: 'Postal Code',
   country: 'Country',
   notes: 'Notes',
+  googleRating: 'Google Rating',
+  googleReviewsCount: 'Number of Reviews',
   assignedTo: 'Assigned To',
   createdAt: 'Created At',
   selectCompanyForCall: 'Select a company to call',

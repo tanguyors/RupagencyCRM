@@ -47,7 +47,9 @@ const CompanyDetail = () => {
     postalCode: company?.postalCode || '',
     sector: company?.sector || '',
     status: company?.status || 'Prospect',
-    notes: company?.notes || ''
+    notes: company?.notes || '',
+    googleRating: company?.googleRating || '',
+    googleReviewsCount: company?.googleReviewsCount || ''
   });
 
   if (!company) {
@@ -253,6 +255,37 @@ const CompanyDetail = () => {
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-1">
+                    Note Google
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={editData.googleRating}
+                    onChange={(e) => setEditData(prev => ({ ...prev, googleRating: e.target.value }))}
+                    className="w-full px-3 py-2 border border-dark-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-dark-900 dark:text-cream-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="4.5"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-1">
+                    Nombre d'avis
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editData.googleReviewsCount}
+                    onChange={(e) => setEditData(prev => ({ ...prev, googleReviewsCount: e.target.value }))}
+                    className="w-full px-3 py-2 border border-dark-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-dark-900 dark:text-cream-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="150"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-dark-700 dark:text-dark-300 mb-1">
                   Notes
@@ -315,6 +348,23 @@ const CompanyDetail = () => {
                   <div className="flex items-center text-sm text-dark-600 dark:text-dark-400">
                     <Globe className="w-4 h-4 mr-2" />
                     {company.sector}
+                  </div>
+                )}
+                
+                {(company.googleRating || company.googleReviewsCount) && (
+                  <div className="flex items-center text-sm text-dark-600 dark:text-dark-400">
+                    <Globe className="w-4 h-4 mr-2" />
+                    <span className="font-medium mr-2">Google:</span>
+                    {company.googleRating && (
+                      <span className="mr-2">
+                        ⭐ {company.googleRating}/5
+                      </span>
+                    )}
+                    {company.googleReviewsCount && (
+                      <span>
+                        ({company.googleReviewsCount} avis)
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

@@ -33,7 +33,9 @@ const AddCompany = () => {
     email: '',
     website: '',
     size: '',
-    notes: ''
+    notes: '',
+    googleRating: '',
+    googleReviewsCount: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -234,6 +236,34 @@ const AddCompany = () => {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Informations Google */}
+          <div>
+            <h3 className="text-lg font-semibold text-dark-900 dark:text-cream-50 mb-4 flex items-center">
+              <Globe className="w-5 h-5 mr-2" />
+              Informations Google
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Note Google"
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                value={formData.googleRating}
+                onChange={(e) => handleChange('googleRating', e.target.value)}
+                placeholder="4.5"
+              />
+              <Input
+                label="Nombre d'avis"
+                type="number"
+                min="0"
+                value={formData.googleReviewsCount}
+                onChange={(e) => handleChange('googleReviewsCount', e.target.value)}
+                placeholder="150"
+              />
             </div>
           </div>
 

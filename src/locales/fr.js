@@ -46,6 +46,8 @@ const fr = {
   website: 'Site web',
   size: 'Taille',
   notes: 'Notes',
+  googleRating: 'Note Google',
+  googleReviewsCount: 'Nombre d\'avis',
   companyStatus: 'Statut',
   prospect: 'Prospect',
   lead: 'Lead',
@@ -94,6 +96,8 @@ const fr = {
   userStatus: 'Statut utilisateur',
   userActive: 'Actif',
   userInactive: 'Inactif',
+  userRanking: 'Classement utilisateurs',
+  activityLog: 'Journal d\'activité',
   
   // Stats
   statistics: 'Statistiques',
@@ -133,6 +137,13 @@ const fr = {
   newCall: 'Nouvel appel',
   newAppointment: 'Nouveau rendez-vous',
   
+  // Activity types
+  newCompanyAdded: 'Nouvelle entreprise ajoutée',
+  callCompleted: 'Appel terminé',
+  appointmentCreated: 'Rendez-vous créé',
+  companyDeleted: 'Entreprise supprimée',
+  callMade: 'Appel effectué',
+  
   // Company Details
   companyInformation: 'Informations de l\'entreprise',
   contactInformation: 'Informations de contact',
@@ -162,6 +173,10 @@ const fr = {
   preferences: 'Préférences',
   notifications: 'Notifications',
   security: 'Sécurité',
+  
+  // Theme
+  darkMode: 'Mode sombre',
+  lightMode: 'Mode clair',
   
   // Errors
   error404: 'Page non trouvée',

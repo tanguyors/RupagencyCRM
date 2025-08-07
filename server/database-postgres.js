@@ -46,6 +46,8 @@ const initDatabase = async () => {
         website VARCHAR(255),
         size VARCHAR(50),
         notes TEXT,
+        google_rating DECIMAL(2,1),
+        google_reviews_count INTEGER,
         status VARCHAR(50) DEFAULT 'Prospect',
         assigned_to INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

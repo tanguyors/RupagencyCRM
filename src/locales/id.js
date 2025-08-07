@@ -74,6 +74,8 @@ const translations = {
   postalCode: 'Kode Pos',
   country: 'Negara',
   notes: 'Catatan',
+  googleRating: 'Rating Google',
+  googleReviewsCount: 'Jumlah Ulasan',
   assignedTo: 'Ditugaskan Kepada',
   createdAt: 'Dibuat Pada',
   selectCompanyForCall: 'Pilih perusahaan untuk dipanggil',

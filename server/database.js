@@ -44,6 +44,8 @@ const initDatabase = async () => {
         website TEXT,
         size TEXT,
         notes TEXT,
+        google_rating DECIMAL(2,1),
+        google_reviews_count INTEGER,
         status TEXT DEFAULT 'Prospect',
         assigned_to INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

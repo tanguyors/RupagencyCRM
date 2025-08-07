@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const LanguageSelector = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, changeLanguage } = useLanguage();
 
   const languages = [
     { code: 'fr', name: 'Français', flag: '🇫🇷' },
@@ -15,7 +15,7 @@ const LanguageSelector = () => {
       {languages.map((lang) => (
         <button
           key={lang.code}
-          onClick={() => setLanguage(lang.code)}
+          onClick={() => changeLanguage(lang.code)}
           className={`flex items-center space-x-1 px-2 py-1 rounded text-sm transition-colors ${
             language === lang.code
               ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
