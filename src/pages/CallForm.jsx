@@ -82,12 +82,41 @@ const CallForm = () => {
           L'entreprise avec l'ID {companyId} n'a pas été trouvée.
           {allCompanies.length === 0 ? ' Aucune entreprise chargée.' : ` ${allCompanies.length} entreprises disponibles.`}
         </p>
+        
+        {allCompanies.length > 0 && (
+          <div className="mt-6 mb-6">
+            <h3 className="text-lg font-medium text-dark-900 dark:text-cream-50 mb-3">
+              Entreprises disponibles :
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl mx-auto">
+              {allCompanies.slice(0, 6).map((availableCompany) => (
+                <div key={availableCompany.id} className="p-3 bg-cream-50 dark:bg-dark-700 rounded-lg border">
+                  <p className="font-medium text-dark-900 dark:text-cream-50">
+                    {availableCompany.name}
+                  </p>
+                  <p className="text-sm text-dark-600 dark:text-dark-400">
+                    ID: {availableCompany.id} • {availableCompany.city}
+                  </p>
+                  <Button 
+                    onClick={() => navigate(`/companies/${availableCompany.id}/call`)}
+                    size="sm"
+                    className="mt-2 w-full"
+                  >
+                    <Phone className="w-3 h-3 mr-1" />
+                    Appeler cette entreprise
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="space-x-4">
           <Button onClick={() => navigate('/companies')} className="mt-4">
             Retour aux entreprises
           </Button>
-          <Button onClick={() => window.location.reload()} variant="outline" className="mt-4">
-            Recharger la page
+          <Button onClick={() => navigate('/companies?action=call')} variant="outline" className="mt-4">
+            Choisir une entreprise
           </Button>
         </div>
       </div>
