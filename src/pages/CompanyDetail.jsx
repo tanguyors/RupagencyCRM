@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 
 const CompanyDetail = () => {
   const navigate = useNavigate();
-  const { companyId } = useParams();
+  const { id } = useParams();
   const { companies, updateCompany, deleteCompany, initializeData, fetchCompanies } = useStore();
   const { t } = useLanguage();
   
@@ -34,10 +34,10 @@ const CompanyDetail = () => {
   const allCalls = useStore.getState().calls;
   const allAppointments = useStore.getState().appointments;
   
-  const parsedCompanyId = parseInt(companyId);
-  const company = allCompanies.find(c => c.id === parsedCompanyId);
-  const companyCalls = allCalls.filter(call => call.companyId === parsedCompanyId);
-  const companyAppointments = allAppointments.filter(appointment => appointment.companyId === parsedCompanyId);
+  const parsedCompanyId = parseInt(id);
+  const company = allCompanies.find(c => String(c.id) === String(id));
+  const companyCalls = allCalls.filter(call => String(call.companyId) === String(id));
+  const companyAppointments = allAppointments.filter(appointment => String(appointment.companyId) === String(id));
 
   // Forcer le chargement des entreprises si elles ne sont pas disponibles
   useEffect(() => {
@@ -52,7 +52,7 @@ const CompanyDetail = () => {
 
   // Debug: afficher les informations pour diagnostiquer le problème
   console.log('CompanyDetail Debug:', {
-    companyId,
+    companyId: id,
     parsedCompanyId,
     companiesCount: allCompanies.length,
     companies: allCompanies.map(c => ({ id: c.id, name: c.name })),
@@ -81,7 +81,7 @@ const CompanyDetail = () => {
           {t('companyNotFound')}
         </h2>
         <p className="text-dark-600 dark:text-dark-400 mt-2 mb-4">
-          L'entreprise avec l'ID {companyId} n'a pas été trouvée.
+           L'entreprise avec l'ID {id} n'a pas été trouvée.
           {allCompanies.length === 0 ? ' Aucune entreprise chargée.' : ` ${allCompanies.length} entreprises disponibles.`}
         </p>
         

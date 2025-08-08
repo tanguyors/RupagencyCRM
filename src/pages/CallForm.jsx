@@ -18,28 +18,29 @@ import toast from 'react-hot-toast';
 
 const CallForm = () => {
   const navigate = useNavigate();
-  const { companyId } = useParams();
+  const { id } = useParams();
   const { companies, addCall, fetchCompanies } = useStore();
   
   // Combine store companies with mock data
   const allCompanies = companies;
-  const parsedCompanyId = parseInt(companyId);
-  const company = allCompanies.find(c => c.id === parsedCompanyId);
+  const parsedCompanyId = parseInt(id);
+  const company = allCompanies.find(c => String(c.id) === String(id));
 
   // Forcer le chargement des entreprises si elles ne sont pas disponibles
   useEffect(() => {
-    if (allCompanies.length === 0) {
-      console.log('Aucune entreprise chargée, tentative de chargement...');
+    // Charger si la liste est vide OU si l'entreprise spécifique n'est pas présente encore
+    if (allCompanies.length === 0 || !company) {
+      console.log('Chargement entreprises (call form) ...');
       fetchCompanies().catch(error => {
         console.error('Erreur lors du chargement des entreprises:', error);
         toast.error('Erreur lors du chargement des entreprises');
       });
     }
-  }, [allCompanies.length, fetchCompanies]);
+  }, [allCompanies.length, company, fetchCompanies]);
 
   // Debug: afficher les informations pour diagnostiquer le problème
   console.log('CallForm Debug:', {
-    companyId,
+    companyId: id,
     parsedCompanyId,
     companiesCount: allCompanies.length,
     companies: allCompanies.map(c => ({ id: c.id, name: c.name })),
@@ -70,7 +71,7 @@ const CallForm = () => {
     const call = {
       ...callData,
       scheduledDateTime: `${callData.scheduledDate}T${callData.scheduledTime}:00`,
-      companyId: parseInt(companyId),
+      companyId: parseInt(id),
       userId: useStore.getState().user?.id || 1,
       status: 'Programmé',
       createdAt: new Date().toISOString()
@@ -90,7 +91,7 @@ const CallForm = () => {
           Entreprise non trouvée
         </h2>
         <p className="text-dark-600 dark:text-dark-400 mt-2 mb-4">
-          L'entreprise avec l'ID {companyId} n'a pas été trouvée.
+          L'entreprise avec l'ID {id} n'a pas été trouvée.
           {allCompanies.length === 0 ? ' Aucune entreprise chargée.' : ` ${allCompanies.length} entreprises disponibles.`}
         </p>
         
