@@ -120,8 +120,23 @@ router.post('/', authenticateToken, async (req, res) => {
       sector, email, website, size, notes, normalizedGoogleRating, normalizedGoogleReviewsCount, status || 'Prospect', assignedTo || null
     ];
 
-    const result = await run(insertSql, values);
-    
+    // En PG, pour récupérer l'id inséré on utilise RETURNING id
+    const isProd = process.env.NODE_ENV === 'production';
+    let insertedId;
+    if (isProd) {
+      const returning = await queryOne(
+        `INSERT INTO companies (
+           name, phone, city, postal_code, country, siren, manager,
+           sector, email, website, size, notes, google_rating, google_reviews_count, status, assigned_to
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+        values
+      );
+      insertedId = returning?.id;
+    } else {
+      const result = await run(insertSql, values);
+      insertedId = result.lastID;
+    }
+
     // Récupérer l'entreprise avec le nom de l'utilisateur assigné
     const selectSql = `
       SELECT c.*, u.name as assignedToName 
@@ -130,7 +145,7 @@ router.post('/', authenticateToken, async (req, res) => {
       WHERE c.id = ?
     `;
     
-    const company = await queryOne(selectSql, [result.lastID]);
+    const company = await queryOne(selectSql, [insertedId]);
     const transformedCompany = transformCompanyData(company);
     res.status(201).json(transformedCompany);
   } catch (err) {

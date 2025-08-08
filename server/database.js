@@ -7,6 +7,15 @@ const path = require('path');
 let pool;
 let db;
 
+// Convertit les placeholders SQLite (?) en placeholders PostgreSQL ($1, $2, ...)
+const toPostgresPlaceholders = (sql) => {
+  let index = 0;
+  return sql.replace(/\?/g, () => {
+    index += 1;
+    return `$${index}`;
+  });
+};
+
 if (process.env.NODE_ENV === 'production') {
   // PostgreSQL en production
   pool = new Pool({
@@ -320,7 +329,8 @@ const insertInitialDataSQLite = () => {
 // Fonction pour exécuter des requêtes
 const query = (sql, params = []) => {
   if (process.env.NODE_ENV === 'production') {
-    return pool.query(sql, params);
+    const pgSql = toPostgresPlaceholders(sql);
+    return pool.query(pgSql, params);
   } else {
     return new Promise((resolve, reject) => {
       db.all(sql, params, (err, rows) => {
@@ -337,7 +347,8 @@ const query = (sql, params = []) => {
 // Fonction pour exécuter une requête qui retourne une seule ligne
 const queryOne = (sql, params = []) => {
   if (process.env.NODE_ENV === 'production') {
-    return pool.query(sql, params).then(result => result.rows[0]);
+    const pgSql = toPostgresPlaceholders(sql);
+    return pool.query(pgSql, params).then(result => result.rows[0]);
   } else {
     return new Promise((resolve, reject) => {
       db.get(sql, params, (err, row) => {
@@ -354,7 +365,12 @@ const queryOne = (sql, params = []) => {
 // Fonction pour exécuter une requête d'insertion/mise à jour
 const run = (sql, params = []) => {
   if (process.env.NODE_ENV === 'production') {
-    return pool.query(sql, params);
+    const pgSql = toPostgresPlaceholders(sql);
+    return pool.query(pgSql, params).then((result) => ({
+      rowCount: result.rowCount,
+      // Si l'INSERT comporte RETURNING id, exposer aussi lastID pour homogénéité
+      lastID: result.rows && result.rows[0] && (result.rows[0].id || result.rows[0].lastID)
+    }));
   } else {
     return new Promise((resolve, reject) => {
       db.run(sql, params, function(err) {
