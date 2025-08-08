@@ -45,6 +45,37 @@ async function testAPI() {
       console.log(`- ${company.name} (ID: ${company.id})`);
     });
     
+    // Test d'ajout d'une entreprise
+    console.log('3. Test d\'ajout d\'une entreprise...');
+    const newCompany = {
+      name: 'Test Company',
+      phone: '01 23 45 67 89',
+      city: 'Paris',
+      postalCode: '75001',
+      country: 'France',
+      manager: 'Test Manager',
+      sector: 'Technologie',
+      email: 'test@company.com',
+      status: 'Prospect'
+    };
+    
+    const addCompanyResponse = await fetch(`${API_BASE_URL}/companies`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authData.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCompany)
+    });
+    
+    if (!addCompanyResponse.ok) {
+      const errorData = await addCompanyResponse.json();
+      throw new Error(`Erreur d'ajout d'entreprise: ${addCompanyResponse.status} - ${errorData.message}`);
+    }
+    
+    const addedCompany = await addCompanyResponse.json();
+    console.log('Entreprise ajoutée avec succès:', addedCompany.name, '(ID:', addedCompany.id, ')');
+    
   } catch (error) {
     console.error('Erreur lors du test:', error.message);
   }
