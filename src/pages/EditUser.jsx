@@ -143,7 +143,7 @@ const EditUser = () => {
     }
   };
 
-  const user = users.find(u => u.id === parseInt(userId));
+  const user = users.find(u => u.id === parseInt(id));
   if (!user) {
     return null; // Will redirect in useEffect
   }
