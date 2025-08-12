@@ -155,11 +155,13 @@ const useStore = create(
       addCall: async (call) => {
         try {
           const newCall = await api.createCall(call);
+          console.log('Nouvel appel créé:', newCall);
           set((state) => ({
             calls: [newCall, ...state.calls],
           }));
           return newCall;
         } catch (error) {
+          console.error('Erreur lors de la création de l\'appel:', error);
           throw error;
         }
       },

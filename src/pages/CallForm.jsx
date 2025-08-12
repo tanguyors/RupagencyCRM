@@ -60,7 +60,7 @@ const CallForm = () => {
   const callTypes = ['Prospection', 'Contrôle qualité', 'SAV'];
   const priorities = ['Basse', 'Normal', 'Haute', 'Urgente'];
 
-  const handleCallSubmit = (e) => {
+  const handleCallSubmit = async (e) => {
     e.preventDefault();
     
     if (!callData.scheduledDate || !callData.scheduledTime) {
@@ -77,9 +77,15 @@ const CallForm = () => {
       createdAt: new Date().toISOString()
     };
 
-    addCall(call);
-    toast.success('Appel programmé avec succès !');
-    navigate('/calls');
+    try {
+      const newCall = await addCall(call);
+      toast.success('Appel programmé avec succès !');
+      // Rediriger vers la page d'exécution de l'appel
+      navigate(`/calls/${newCall.id}/execute`);
+    } catch (error) {
+      toast.error('Erreur lors de la création de l\'appel');
+      console.error('Erreur:', error);
+    }
   };
 
 

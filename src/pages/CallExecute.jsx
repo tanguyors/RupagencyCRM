@@ -22,13 +22,54 @@ import toast from 'react-hot-toast';
 
 const CallExecute = () => {
   const navigate = useNavigate();
-  const { callId } = useParams();
-  const { calls, companies, updateCall, addAppointment } = useStore();
+  const { id } = useParams();
+  const { calls, companies, updateCall, addAppointment, fetchCalls, fetchCompanies } = useStore();
   
   // Combine store companies with mock data
   const allCompanies = companies;
-  const call = calls.find(c => c.id === parseInt(callId));
+  const allCalls = calls;
+  const call = allCalls.find(c => c.id === parseInt(id));
   const company = call ? allCompanies.find(c => c.id === call.companyId) : null;
+
+  // Forcer le chargement des données si elles ne sont pas disponibles
+  useEffect(() => {
+    const loadData = async () => {
+      // Charger les appels si la liste est vide OU si l'appel spécifique n'est pas présent
+      if (allCalls.length === 0 || !call) {
+        console.log('Chargement des appels depuis l\'API...');
+        try {
+          await fetchCalls();
+        } catch (error) {
+          console.error('Erreur lors du chargement des appels:', error);
+          toast.error('Erreur lors du chargement des appels');
+        }
+      }
+      
+      // Charger les entreprises si la liste est vide OU si l'entreprise de l'appel n'est pas présente
+      if (allCompanies.length === 0 || (call && !company)) {
+        console.log('Chargement des entreprises depuis l\'API...');
+        try {
+          await fetchCompanies();
+        } catch (error) {
+          console.error('Erreur lors du chargement des entreprises:', error);
+          toast.error('Erreur lors du chargement des entreprises');
+        }
+      }
+    };
+
+    loadData();
+  }, [allCalls.length, allCompanies.length, call, company, fetchCalls, fetchCompanies]);
+
+  // Debug: afficher les informations pour diagnostiquer le problème
+  console.log('CallExecute Debug:', {
+    callId: id,
+    parsedCallId: parseInt(id),
+    callsCount: allCalls.length,
+    companiesCount: allCompanies.length,
+    calls: allCalls.map(c => ({ id: c.id, companyId: c.companyId, status: c.status })),
+    foundCall: call,
+    foundCompany: company
+  });
 
   const [isCallActive, setIsCallActive] = useState(false);
   const [callStartTime, setCallStartTime] = useState(null);
@@ -75,7 +116,7 @@ const CallExecute = () => {
   const startCall = () => {
     setIsCallActive(true);
     setCallStartTime(Date.now());
-    updateCall(parseInt(callId), { status: 'En cours' });
+    updateCall(parseInt(id), { status: 'En cours' });
     toast.success('Appel démarré !');
   };
 
@@ -100,7 +141,7 @@ const CallExecute = () => {
       completedAt: new Date().toISOString()
     };
 
-    updateCall(parseInt(callId), updatedCall);
+    updateCall(parseInt(id), updatedCall);
     toast.success('Appel terminé et enregistré !');
 
     if (callResult.issue === 'RDV fixé') {
@@ -146,9 +187,41 @@ const CallExecute = () => {
         <h2 className="text-xl font-semibold text-dark-900 dark:text-cream-50">
           Appel non trouvé
         </h2>
-        <Button onClick={() => navigate('/calls')} className="mt-4">
-          Retour aux appels
-        </Button>
+        <p className="text-dark-600 dark:text-dark-400 mt-2 mb-4">
+          L'appel avec l'ID {id} n'a pas été trouvé.
+          {allCalls.length === 0 ? ' Aucun appel chargé.' : ` ${allCalls.length} appels disponibles.`}
+          {call && !company ? ' Entreprise de l\'appel non trouvée.' : ''}
+        </p>
+        
+        {allCalls.length > 0 && (
+          <div className="mt-6 mb-6">
+            <h3 className="text-lg font-medium text-dark-900 dark:text-cream-50 mb-3">
+              Appels disponibles :
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl mx-auto">
+              {allCalls.slice(0, 6).map(c => (
+                <div key={c.id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm">
+                  <div className="font-medium">ID: {c.id}</div>
+                  <div>Company ID: {c.companyId}</div>
+                  <div>Status: {c.status}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <div className="space-x-4">
+          <Button onClick={() => navigate('/calls')} className="mt-4">
+            Retour aux appels
+          </Button>
+          <Button 
+            onClick={() => window.location.reload()} 
+            variant="outline" 
+            className="mt-4"
+          >
+            Recharger la page
+          </Button>
+        </div>
       </div>
     );
   }
