@@ -12,11 +12,12 @@ import useStore from '../store/useStore';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import toast from 'react-hot-toast';
 
 const EditUser = () => {
   const navigate = useNavigate();
-  const { userId } = useParams();
-  const { users, updateUser, deleteUser } = useStore();
+  const { id } = useParams();
+  const { users, updateUser, deleteUser, fetchUsers } = useStore();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -34,23 +35,40 @@ const EditUser = () => {
 
   // Load user data on component mount
   useEffect(() => {
-    const user = users.find(u => u.id === parseInt(userId));
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        role: user.role || 'closer',
-        status: user.status || 'active',
-        level: user.level || 1,
-        xp: user.xp || 0,
-        badges: user.badges || []
-      });
-    } else {
-      // User not found, redirect to admin
-      navigate('/admin');
-    }
-  }, [userId, users, navigate]);
+    const loadUserData = async () => {
+      // Si la liste des utilisateurs est vide, la charger depuis l'API
+      if (users.length === 0) {
+        try {
+          await fetchUsers();
+        } catch (error) {
+          console.error('Erreur lors du chargement des utilisateurs:', error);
+          toast.error('Erreur lors du chargement des utilisateurs');
+          navigate('/admin');
+          return;
+        }
+      }
+
+      const user = users.find(u => u.id === parseInt(id));
+      if (user) {
+        setFormData({
+          name: user.name || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          role: user.role || 'closer',
+          status: user.status || 'active',
+          level: user.level || 1,
+          xp: user.xp || 0,
+          badges: user.badges || []
+        });
+      } else {
+        // User not found, redirect to admin
+        toast.error('Utilisateur non trouvé');
+        navigate('/admin');
+      }
+    };
+
+    loadUserData();
+  }, [id, users, navigate, fetchUsers]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,7 +105,7 @@ const EditUser = () => {
 
     // Check if email already exists (excluding current user)
     const emailExists = users.some(user => 
-      user.email === formData.email && user.id !== parseInt(userId)
+      user.email === formData.email && user.id !== parseInt(id)
     );
     if (emailExists) {
       newErrors.email = 'Cet email est déjà utilisé';
@@ -97,20 +115,32 @@ const EditUser = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
 
-    updateUser(parseInt(userId), formData);
-    navigate('/admin');
+    try {
+      await updateUser(parseInt(id), formData);
+      toast.success('Utilisateur modifié avec succès !');
+      navigate('/admin');
+    } catch (error) {
+      toast.error(error.message || 'Erreur lors de la modification de l\'utilisateur');
+      console.error('Erreur lors de la modification:', error);
+    }
   };
 
-  const handleDelete = () => {
-    deleteUser(parseInt(userId));
-    navigate('/admin');
+  const handleDelete = async () => {
+    try {
+      await deleteUser(parseInt(id));
+      toast.success('Utilisateur supprimé avec succès !');
+      navigate('/admin');
+    } catch (error) {
+      toast.error(error.message || 'Erreur lors de la suppression de l\'utilisateur');
+      console.error('Erreur lors de la suppression:', error);
+    }
   };
 
   const user = users.find(u => u.id === parseInt(userId));
