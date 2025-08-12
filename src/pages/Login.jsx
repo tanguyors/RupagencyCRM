@@ -89,15 +89,7 @@ const Login = () => {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-            <p className="text-sm text-primary-700 dark:text-primary-300 mb-2">
-              <strong>Comptes de démonstration :</strong>
-            </p>
-            <div className="text-xs text-primary-600 dark:text-primary-400 space-y-1">
-              <p>• Closer: thomas@rupagency.com / password123</p>
-              <p>• Admin: admin@rupagency.com / password123</p>
-            </div>
-          </div>
+
         </Card>
       </div>
     </div>
